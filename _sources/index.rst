@@ -19,9 +19,11 @@ The course will be taught in Python and will use popular libraries such as Numpy
 **Time and Location:** Tuesday and Thursday 10:30-11:45am, Pearson 112
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :hidden:
 
    syllabus.rst
-   python-basics.ipynb
+   homework/index.rst
+   tutorial/index.rst
 
 

@@ -5,3 +5,5 @@ Tutorials
    :maxdepth: 1
 
    python-basics.ipynb
+   numpy-jax.rst
+

@@ -38,6 +38,7 @@ Python will be used as main programming language for tutorials and homework assi
    :hidden:
 
    syllabus.rst
+   lecture.rst
    homework/index.rst
    tutorial/index.rst
 

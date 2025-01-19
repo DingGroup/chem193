@@ -18,9 +18,9 @@ Python will be used as main programming language for tutorials and homework assi
 
 **Instructor:** Dr. Xinqiang Ding (Xinqiang.Ding@tufts.edu)
 
-**Time and Location:** Tuesday and Thursday 10:30-11:45am, Pearson 112
+**Time and Location:** Tuesday and Thursday 10:30AM -11:45AM, Pearson 112
 
-**Office Hours:** TBD
+**Office Hours:** Tuesday 2:30PM - 3:30PM, Pearson 005X
 
 **Grading:** homework (40%), research article presentation (20%), final project (40%)
 
@@ -37,9 +37,11 @@ Python will be used as main programming language for tutorials and homework assi
    :maxdepth: 2
    :hidden:
 
+   schedule.rst
    syllabus.rst
    lecture.rst
-   homework/index.rst
    tutorial/index.rst
+   homework/index.rst
+
 
 

@@ -10,7 +10,7 @@ Schedule
      - Tutorial
      - Assignment
    * - 01/13
-     - :download:`Python and Python Packages <./lecture_slides/1-python-and-python-packages.pdf>`
+     - `Python and Python Packages <_static/lecture_slides/1-python-and-python-packages.pdf>`_
      - `Python basics <./tutorial/python-basics.ipynb>`_
      - - `linear algebra review <./homework/0-linear-algebra.rst>`_ 
        - install `uv` on your laptop

@@ -15,4 +15,7 @@ Schedule
      - - `linear algebra review <./homework/0-linear-algebra.rst>`_ 
        - install `uv` on your laptop
        - no submission
-
+   * - 01/20
+     - 
+     - `Numpy & JAX <./tutorial/numpy-jax.rst>`_
+     -

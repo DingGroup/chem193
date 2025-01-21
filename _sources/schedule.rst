@@ -4,7 +4,7 @@ Schedule
 .. list-table::
    :header-rows: 1
    :widths: 15 30 25 30
-
+   
    * - Week of
      - Lecture
      - Tutorial

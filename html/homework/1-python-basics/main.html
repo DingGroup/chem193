@@ -335,7 +335,18 @@
   <section id="Processing-protein-multiple-sequence-alignments">
 <h1>Processing protein multiple sequence alignments<a class="headerlink" href="#Processing-protein-multiple-sequence-alignments" title="Link to this heading">#</a></h1>
 <p><strong>Download and submission instruction</strong></p>
-<p><em>Click the download button on the top right of this page and select ``.ipynb`` to download the Jupyter notebook. Move the downloaded ``.ipynb`` file to a ``uv`` project directory.</em></p>
+<p><strong>Download</strong>:</p>
+<ol class="arabic simple">
+<li><p><em>Click the download button on the top right of this page and select ``.ipynb`` to download the Jupyter notebook.</em></p></li>
+<li><p>*Move the downloaded <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> file to a <code class="docutils literal notranslate"><span class="pre">uv</span></code> project, where the python package <code class="docutils literal notranslate"><span class="pre">notebook</span></code> has been added as a dependency.</p></li>
+<li><p><em>Edit and run the notebook using the ``.venv`` of the ``uv`` project. Install packages as needed by running ``uv add mypackage``</em></p></li>
+</ol>
+<p><strong>Submission</strong>:</p>
+<ol class="arabic simple">
+<li><p><em>Name the ``.ipynb`` file as ``main.ipynb``.</em></p></li>
+<li><p><em>Upload ``main.ipynb`` and ``pyproject.toml`` files to the OneDrive folder that has been shared with you. Please not upload other files in the ``uv`` project.</em></p></li>
+</ol>
+<p><strong>Due date</strong>: <code class="docutils literal notranslate"><span class="pre">January</span> <span class="pre">27,</span> <span class="pre">2025,</span> <span class="pre">11:59</span> <span class="pre">PM</span></code></p>
 <p>Proteins are clustered into families based on sequence similarity. A protein family is a group of proteins that share a common evolutionary origin, reflected by their related functions and similarities in sequence or structure. Sequences of proteins in a family are aligned to identify the conserved regions and the variations in the family. Such an alignment is called a multiple sequence alignment (MSA).</p>
 <p>In this assignment, you will write Python code to process the MSA of a protein family. The MSA is stored in a text file in the <a class="reference external" href="https://en.wikipedia.org/wiki/Stockholm_format">Stockholm format</a>. The Stockholm formatted file looks like the following:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># STOCKHOLM 1.0

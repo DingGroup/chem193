@@ -20,3 +20,8 @@ Schedule
      - - `Numpy & JAX <./tutorial/numpy-jax.rst>`_
        - `Linear regression <./tutorial/linear-regression.ipynb>`__
      - `Protein MSA <./homework/1-python-basics/main.ipynb>`_ (due 01/27)
+   * - 01/27
+     - `Classification and logistic regression <_static/lecture_slides/3-classification-and-logistic-regression.pdf>`_
+     - 
+     -
+

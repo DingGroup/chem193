@@ -21,7 +21,11 @@ Schedule
        - `Linear regression <./tutorial/linear-regression.ipynb>`__
      - `Protein MSA <./homework/1-python-basics/main.ipynb>`_ (due 01/27)
    * - 01/27
-     - `Classification and logistic regression <_static/lecture_slides/3-classification-and-logistic-regression.pdf>`_
+     - - `Classification and logistic regression <_static/lecture_slides/3-classification-and-logistic-regression.pdf>`_ 
+       - `Deep learning <_static/lecture_slides/4-deep-learning.pdf>`_
      - 
-     -
+     - Form teams of 3-4 for journal club and final project (due 02/06)
+
+
+.. **Journal club presentation**
 

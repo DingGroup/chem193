@@ -7,4 +7,5 @@ Tutorials
    python-basics.ipynb
    numpy-jax.rst
    linear-regression.ipynb
+   hpc.rst
 

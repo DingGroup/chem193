@@ -10,6 +10,8 @@ For some homework assignments, your laptop or desktop computer may not be powerf
     Here is the full `Expanse User Guide <https://www.sdsc.edu/support/user_guides/expanse.html>`_. We will only need a small subset of the information in this guide, but you may find it useful to refer to the full guide if you have any questions.
 
 
-Logging in to Expanse
----------------------
+Log in to Expanse
+-----------------
+
+
 

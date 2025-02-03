@@ -1,0 +1,987 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Predict protein secondary structure &#8212; Chem 193</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'homework/2-protein-secondary-structure/script/homework_with_solutions';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Chem 193</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../schedule.html">Schedule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../syllabus.html">Syllabus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lecture.html">Lecture Slides</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorial/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/python-basics.html">Python Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/numpy-jax.html">Numpy &amp; JAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/linear-regression.html">Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/hpc.html">High Performance Computing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../index.html">Homeworks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../0-linear-algebra.html">Linear Algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../1-python-basics/main.html">Protein MSA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">Protein secondary structure</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/DingGroup/Chem-193" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/homework/2-protein-secondary-structure/script/homework_with_solutions.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Predict protein secondary structure</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Process-the-training-data">Process the training data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-loss-function-for-softmax-regression">Define the loss function for softmax regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-the-model">Train the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-and-compute-the-accuracy-on-the-training-data">Make predictions and compute the accuracy on the training data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-on-the-test-data">Make predictions on the test data</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Predict-protein-secondary-structure">
+<h1>Predict protein secondary structure<a class="headerlink" href="#Predict-protein-secondary-structure" title="Link to this heading">#</a></h1>
+<p>In this assignment you will predict the secondary structure of proteins based on their amino acid sequences. The <a class="reference external" href="https://en.wikipedia.org/wiki/Protein_secondary_structure">secondary structure of a protein</a> is the local spatial arrangement of its backbone atoms. It arises from the hydrogen bonds between the backbone atoms and is the building block of proteins’ 3D structure. The most common types of secondary structures are alpha helices, beta sheets, and coils. Given a protein’s 3D structure,
+the secondary structure can be determined from the coordinates of its atoms. Depending on the determination method, the secondary structure can be classified into more or fewer types.</p>
+<p>Here you will use a dataset of proteins with known secondary structures that were assigned by the <a class="reference external" href="https://pdb-redo.eu/dssp/about">DSSP</a> method based on their 3D structures. Although DSSP assigns eight types of secondary structures, the assignment simplifies them into three types: helix (including types G, H, and I), strand (including types B and E) and coil (including types T, S, ., and P). The training and test datasets are provided in the text files
+<a class="reference external" href="../../../_static/protein-secondary-structure/train.txt">train.txt</a> and <a class="reference external" href="../../../_static/protein-secondary-structure/test.txt">test.txt</a>, respectively. Each line starting with a greater-than symbol <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> contains the name of the protein. In the training dataset, the two lines following the name contain the amino acid sequence and the secondary structure, respectively. In the test dataset, only the amino acid sequence is provided. The amino acid sequence is represented by the one-letter
+code. The secondary structure is represented as a string of 0 (helix), 1 (strand), and 2 (other).</p>
+<p>The task is to train a machine learning model using the training dataset and predict the secondary structure of the proteins using their sequences in the test dataset.</p>
+<section id="Model">
+<h2>Model<a class="headerlink" href="#Model" title="Link to this heading">#</a></h2>
+<p>Different proteins have different numbers of amino acids. If the model were to predict the secondary structure of all amino acids in a protein at once, it would have to handle sequences of different lengths. Although this is possible, this assignment will use a simpler approach. The model will predict the secondary structure of an amino acid based on the amino acids before it and after it. This way, the model will have a fixed-size input and output. Specifically, the model will use as input a
+sequence of 15 amino acids and predict the secondary structure of the central amino acid. The model will slide this window along the sequence to predict the secondary structure of all amino acids in a protein. For the amino acids near the beginning and end of the sequence where the window extends beyond the sequence, the model will use a special padding token <code class="docutils literal notranslate"><span class="pre">*</span></code> to complete the window.</p>
+<p>As an example, consider the amino acid sequence <code class="docutils literal notranslate"><span class="pre">SIVAGYEVVGSSSASELLSAIEHVAEKA</span></code>. To predict the secondary structure of the starting amino acid <code class="docutils literal notranslate"><span class="pre">S</span></code>, the model will use as input the window <code class="docutils literal notranslate"><span class="pre">*******SIVAGYEV</span></code>. For the second amino acid <code class="docutils literal notranslate"><span class="pre">I</span></code>, the model will use the window <code class="docutils literal notranslate"><span class="pre">******SIVAGYEVV</span></code>. For the residue <code class="docutils literal notranslate"><span class="pre">A</span></code> at position 14, the model will use the window <code class="docutils literal notranslate"><span class="pre">EVVGSSSASELLSAI</span></code>. This process will continue until the model predicts the secondary structure of the last amino acid <code class="docutils literal notranslate"><span class="pre">A</span></code> using the
+window <code class="docutils literal notranslate"><span class="pre">IEHVAEKA*******</span></code></p>
+<p>Therefore the input to the model will be a sequence of 15 amino acids and the output will be the secondary structure of the central amino acid. The secondary structure of an amino acid is a categorical variable <span class="math notranslate nohighlight">\(y\)</span> with three classes: 0 (helix), 1 (strand), and 2 (other). Therefore, the model will perform a multi-class classification. The input is a sequence of strings, so they need to be converted to numerical values. The simplest way to do this is to use <a class="reference external" href="https://en.wikipedia.org/wiki/One-hot#Machine_learning_and_statistics">one-hot
+encoding</a>. In one-hot encoding, each amino acid is represented by a vector of zeros with a one at the position corresponding to the amino acid. For example, if all amino acids (including the padding token <code class="docutils literal notranslate"><span class="pre">*</span></code>) are represented by the list <code class="docutils literal notranslate"><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'D',</span> <span class="pre">'E',</span> <span class="pre">'F',</span> <span class="pre">'G',</span> <span class="pre">'H',</span> <span class="pre">'I',</span> <span class="pre">'K',</span> <span class="pre">'L',</span> <span class="pre">'M',</span> <span class="pre">'N',</span> <span class="pre">'P',</span> <span class="pre">'Q',</span> <span class="pre">'R',</span> <span class="pre">'S',</span> <span class="pre">'T',</span> <span class="pre">'V',</span> <span class="pre">'W',</span> <span class="pre">'Y',</span> <span class="pre">'*']</span></code>, then the amino acid <code class="docutils literal notranslate"><span class="pre">A</span></code> is represented by the 21-dimensional vector
+<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">...,</span> <span class="pre">0]</span></code>, the amino acid <code class="docutils literal notranslate"><span class="pre">C</span></code> is represented by <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">...,</span> <span class="pre">0]</span></code>, and so on. The padding token <code class="docutils literal notranslate"><span class="pre">*</span></code> is represented by <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">...,</span> <span class="pre">1]</span></code>. Because the input is a sequence of 15 amino acids, the input <span class="math notranslate nohighlight">\(x\)</span> to the model is a vector of length <span class="math notranslate nohighlight">\(15 \times 21 = 315\)</span>.</p>
+<p>The model will be a multi-class logistic regression model, as covered in the lectures.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">chex</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax.tree_utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">otu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+<span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Process-the-training-data">
+<h3>Process the training data<a class="headerlink" href="#Process-the-training-data" title="Link to this heading">#</a></h3>
+<p>Given the design of the model, the data in <code class="docutils literal notranslate"><span class="pre">train.txt</span></code> are not directly suitable for training. The data need to be processed to create the input and output pairs for the model. For each sequence in the training data, you need to extract all windows of 15 amino acids and the corresponding secondary structure of the central amino acid. Then you need to convert the amino acids to one-hot encoding. Take the sequence <code class="docutils literal notranslate"><span class="pre">SIVAGYEVVGSSSASELLSAIEHVAEKA</span></code> and its secondary structure
+<code class="docutils literal notranslate"><span class="pre">2111111111222000000000220000</span></code> as an example. The first window is <code class="docutils literal notranslate"><span class="pre">*******SIVAGYEV</span></code> and the corresponding secondary structure of the central amino acid <code class="docutils literal notranslate"><span class="pre">S</span></code> is 2. The second window is <code class="docutils literal notranslate"><span class="pre">******SIVAGYEVV</span></code> and the secondary structure of the central amino acid <code class="docutils literal notranslate"><span class="pre">I</span></code> is 1. This process will continue until the last window <code class="docutils literal notranslate"><span class="pre">IEHVAEKA*******</span></code> and the secondary structure of the central amino acid <code class="docutils literal notranslate"><span class="pre">A</span></code> is 0. Each window and the corresponding secondary structure will be an input-output pair for the
+model. You need to process all sequences in the training data to create the input-output pairs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path_to_train</span> <span class="o">=</span> <span class="s1">&#39;../data/train.txt&#39;</span>
+
+
+<span class="c1">## read data from train.txt</span>
+<span class="n">train_seq</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1">## finish the code below such that train_seq is a dictionary with the following structure:</span>
+<span class="c1">## train_seq[protein_name] = (sequence, secondary_structure),</span>
+<span class="c1">## where protein_name is the name of the protein, sequence is the amino acid sequence of the protein, and secondary_structure is the secondary structure of the protein as given in the train.txt file</span>
+
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_train</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="c1">############################################</span>
+    <span class="c1">#### write your code (5 points) #######</span>
+    <span class="c1">############################################</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">train_seq</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">train_seq</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_windows</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">secondary_structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract windows of size 15 from the sequence and secondary structure of a protein</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seq: str, the amino acid sequence of the protein</span>
+<span class="sd">        secondary_structure: str, the secondary structure of the protein</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of tuples: each tuple contains (x, y), where x (15x21=315 dimensional) is the one-hot encoding of the amino acid sequence of length 15, and y is the secondary structure of the central amino acid in the window</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">## amino acid order for one-hot encoding</span>
+    <span class="n">amino_acids</span> <span class="o">=</span> <span class="s2">&quot;ACDEFGHIKLMNPQRSTVWY*&quot;</span>
+
+    <span class="c1">############################################</span>
+    <span class="c1">#### write your code (5 points) ############</span>
+    <span class="c1">############################################</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">one_hot_encoding</span><span class="p">(</span><span class="n">residue</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="k">if</span> <span class="n">residue</span> <span class="o">==</span> <span class="n">aa</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">amino_acids</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">segment</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="p">(</span><span class="mi">7</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="n">seq</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">-</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">segment</span> <span class="o">=</span> <span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="p">(</span><span class="mi">7</span><span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">segment</span> <span class="o">=</span> <span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">7</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">one_hot_encoding</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">secondary_structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">windows</span>
+</pre></div>
+</div>
+</div>
+<p>Code in the cell below uses the function <code class="docutils literal notranslate"><span class="pre">get_windows</span></code> to process every sequence in the training data and stack both <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> in numpy arrays: <code class="docutils literal notranslate"><span class="pre">train_xs</span></code> and <code class="docutils literal notranslate"><span class="pre">train_y</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#############################################################################</span>
+<span class="c1">#### The following code is provided to you and you need to understand it ####</span>
+
+<span class="c1">## get windows for all proteins in the training set</span>
+<span class="c1">## stack all windows in train_xs and train_ys</span>
+
+<span class="n">train_xs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">train_ys</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">ss</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">train_seq</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="n">get_windows</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">ss</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+        <span class="n">train_xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">train_ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">train_xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_xs</span><span class="p">)</span>
+<span class="n">train_ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_ys</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+<span class="n">train_xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">train_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">train_xs</span><span class="p">))</span>
+
+<span class="k">assert</span> <span class="n">train_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">train_ys</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">train_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">315</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">train_xs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">train_xs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 4776/4776 [00:43&lt;00:00, 109.62it/s]
+</pre></div></div>
+</div>
+<p>Code in this cell builds a optimizer, <code class="docutils literal notranslate"><span class="pre">fmin_lbfgs</span></code>, using the <code class="docutils literal notranslate"><span class="pre">optax</span></code> library. You do not need to modify this code. The optimization step will use this optimizer.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_run_opt</span><span class="p">(</span><span class="n">init_params</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+    <span class="n">value_and_grad_fun</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">value_and_grad_from_state</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+        <span class="n">params</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">carry</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">grad</span> <span class="o">=</span> <span class="n">value_and_grad_fun</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">updates</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">grad</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="n">grad</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">fun</span>
+        <span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">continuing_criterion</span><span class="p">(</span><span class="n">carry</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">carry</span>
+        <span class="n">iter_num</span> <span class="o">=</span> <span class="n">otu</span><span class="o">.</span><span class="n">tree_get</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">otu</span><span class="o">.</span><span class="n">tree_get</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;grad&quot;</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">otu</span><span class="o">.</span><span class="n">tree_l2_norm</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">iter_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">iter_num</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">err</span> <span class="o">&gt;=</span> <span class="n">tol</span><span class="p">))</span>
+
+    <span class="n">init_carry</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_params</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">init_params</span><span class="p">))</span>
+    <span class="n">final_params</span><span class="p">,</span> <span class="n">final_state</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
+        <span class="n">continuing_criterion</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">init_carry</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">final_params</span><span class="p">,</span> <span class="n">final_state</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_InfoState</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">iter_num</span><span class="p">:</span> <span class="n">chex</span><span class="o">.</span><span class="n">Numeric</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_print_info</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_fn</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">del</span> <span class="n">params</span>
+        <span class="k">return</span> <span class="n">_InfoState</span><span class="p">(</span><span class="n">iter_num</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_fn</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_args</span><span class="p">):</span>
+        <span class="k">del</span> <span class="n">params</span><span class="p">,</span> <span class="n">extra_args</span>
+
+        <span class="n">jax</span><span class="o">.</span><span class="n">debug</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="s2">&quot;Iteration: </span><span class="si">{i:&gt;5}</span><span class="s2">, Value: </span><span class="si">{v:&gt;6.3e}</span><span class="s2">, Gradient norm: </span><span class="si">{e:&gt;6.3e}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">i</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">iter_num</span><span class="p">,</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">e</span><span class="o">=</span><span class="n">otu</span><span class="o">.</span><span class="n">tree_l2_norm</span><span class="p">(</span><span class="n">grad</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">updates</span><span class="p">,</span> <span class="n">_InfoState</span><span class="p">(</span><span class="n">iter_num</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">iter_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">optax</span><span class="o">.</span><span class="n">GradientTransformationExtraArgs</span><span class="p">(</span><span class="n">init_fn</span><span class="p">,</span> <span class="n">update_fn</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fmin_lbfgs</span><span class="p">(</span><span class="n">initial_params</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">_print_info</span><span class="p">(),</span> <span class="n">optax</span><span class="o">.</span><span class="n">lbfgs</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">_run_opt</span><span class="p">(</span><span class="n">initial_params</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Define-the-loss-function-for-softmax-regression">
+<h2>Define the loss function for softmax regression<a class="headerlink" href="#Define-the-loss-function-for-softmax-regression" title="Link to this heading">#</a></h2>
+<p>In the following, you need to complete a few functions to compute the loss for the softmax regression model. The parameter of the loss function <code class="docutils literal notranslate"><span class="pre">loss_fn</span></code> is <code class="docutils literal notranslate"><span class="pre">theta</span></code> which has shape <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">316)</span></code>, although we have three classes. The first row of <code class="docutils literal notranslate"><span class="pre">theta</span></code> corresponds to the weights for the class 0 and the second row corresponds to the weights for the class 1. Why do we not have a row for class 2? This is because the degenaracy of the softmax function, i.e., the softmax function is invariant to
+adding a constant to the scores. Therefore, we can fix one of the scores to zero. In this case, we fix the score of the last class to zero by setting the <code class="docutils literal notranslate"><span class="pre">theta</span></code> parameter for the last class to zero. This is why the shape of <code class="docutils literal notranslate"><span class="pre">theta</span></code> is <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">316)</span></code> and not <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">316)</span></code>. Given a <code class="docutils literal notranslate"><span class="pre">theta</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">316)</span></code>, we could always add a row of zeros to make it <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">316)</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">expand_theta</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expand theta by appending a row of zeros at the end</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        jnp.ndarray: the expanded theta with shape (3, 316) where the last row is all zeros</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">theta</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_likelihood_per_sample</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the log-likelihood of a single sample</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+<span class="sd">        x: jnp.ndarray, the input features of one sample</span>
+<span class="sd">        y: int, the target label of the sample</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: the log-likelihood of the sample</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">theta_expanded</span> <span class="o">=</span> <span class="n">expand_theta</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">logit</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">theta_expanded</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">logprob</span> <span class="o">=</span> <span class="n">logit</span> <span class="o">-</span> <span class="n">jax</span><span class="o">.</span><span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">logit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logprob</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_likelihood_data</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the log-likelihood of the data by using log_likelihood_per_sample and jax.vmap</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+<span class="sd">        xs: jnp.ndarray, the input features of all samples with shape (n, 316)</span>
+<span class="sd">        ys: jnp.ndarray, the target labels of all samples with shape (n,)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        jnp.ndarray: the log-likelihood of all samples with shape (n,)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">log_likelihood_per_sample</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))(</span><span class="n">theta</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">loss_fn</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;the loss function is defined as the mean negative log-likelihood of the samples,</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: the mean negative log-likelihood of the samples</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">log_likelihood_data</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span> <span class="o">/</span> <span class="n">train_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Train-the-model">
+<h2>Train the model<a class="headerlink" href="#Train-the-model" title="Link to this heading">#</a></h2>
+<p>After the data are processed properly and the loss function is defined, it is time to train the model. Thanks to the automatic differentiation provided by JAX, you do not need to write the function to compute the gradient of the loss function. You only need to provide the loss function to the optimizer along with the initial parameters and stopping criteria.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## initialize theta with zeros</span>
+<span class="n">m</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">theta_init</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">train_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="c1">## check the initial value of the loss function and the norm of the gradient at the initial point</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Initial value: </span><span class="si">{</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">theta_init</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Initial gradient norm: </span><span class="si">{</span><span class="n">otu</span><span class="o">.</span><span class="n">tree_l2_norm</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">)(</span><span class="n">theta_init</span><span class="p">))</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+
+<span class="c1">## optimize the loss function using L-BFGS</span>
+<span class="n">final_theta</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fmin_lbfgs</span><span class="p">(</span><span class="n">theta_init</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Final value: </span><span class="si">{</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">final_theta</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">, &#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Final gradient norm: </span><span class="si">{</span><span class="n">otu</span><span class="o">.</span><span class="n">tree_l2_norm</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">)(</span><span class="n">final_theta</span><span class="p">))</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Initial value: 1.10e+00 Initial gradient norm: 1.93e-01
+Iteration:     0, Value: 1.099e+00, Gradient norm: 1.934e-01
+Iteration:     1, Value: 1.070e+00, Gradient norm: 1.148e-01
+Iteration:     2, Value: 1.040e+00, Gradient norm: 8.036e-02
+Iteration:     3, Value: 1.013e+00, Gradient norm: 8.489e-02
+Iteration:     4, Value: 9.647e-01, Gradient norm: 1.042e-01
+Iteration:     5, Value: 9.065e-01, Gradient norm: 6.281e-02
+Iteration:     6, Value: 8.863e-01, Gradient norm: 3.913e-02
+Iteration:     7, Value: 8.799e-01, Gradient norm: 2.339e-02
+Iteration:     8, Value: 8.691e-01, Gradient norm: 4.872e-02
+Iteration:     9, Value: 8.601e-01, Gradient norm: 5.991e-02
+Iteration:    10, Value: 8.491e-01, Gradient norm: 2.996e-02
+Iteration:    11, Value: 8.465e-01, Gradient norm: 8.120e-03
+Iteration:    12, Value: 8.458e-01, Gradient norm: 1.338e-02
+Iteration:    13, Value: 8.450e-01, Gradient norm: 1.955e-02
+Iteration:    14, Value: 8.439e-01, Gradient norm: 1.869e-02
+Iteration:    15, Value: 8.433e-01, Gradient norm: 1.653e-02
+Iteration:    16, Value: 8.424e-01, Gradient norm: 5.731e-03
+Iteration:    17, Value: 8.423e-01, Gradient norm: 4.212e-03
+Iteration:    18, Value: 8.420e-01, Gradient norm: 2.600e-03
+Iteration:    19, Value: 8.419e-01, Gradient norm: 5.850e-03
+Iteration:    20, Value: 8.417e-01, Gradient norm: 2.304e-03
+Iteration:    21, Value: 8.416e-01, Gradient norm: 1.766e-03
+Iteration:    22, Value: 8.415e-01, Gradient norm: 1.747e-03
+Iteration:    23, Value: 8.414e-01, Gradient norm: 2.547e-03
+Iteration:    24, Value: 8.413e-01, Gradient norm: 3.240e-03
+Iteration:    25, Value: 8.413e-01, Gradient norm: 1.747e-03
+Iteration:    26, Value: 8.412e-01, Gradient norm: 1.528e-03
+Iteration:    27, Value: 8.412e-01, Gradient norm: 1.722e-03
+Iteration:    28, Value: 8.411e-01, Gradient norm: 2.073e-03
+Iteration:    29, Value: 8.411e-01, Gradient norm: 2.958e-03
+Iteration:    30, Value: 8.410e-01, Gradient norm: 1.153e-03
+Iteration:    31, Value: 8.410e-01, Gradient norm: 8.344e-04
+Iteration:    32, Value: 8.410e-01, Gradient norm: 1.142e-03
+Iteration:    33, Value: 8.409e-01, Gradient norm: 1.602e-03
+Iteration:    34, Value: 8.409e-01, Gradient norm: 1.012e-03
+Iteration:    35, Value: 8.409e-01, Gradient norm: 9.810e-04
+Iteration:    36, Value: 8.408e-01, Gradient norm: 2.066e-03
+Iteration:    37, Value: 8.408e-01, Gradient norm: 1.594e-03
+Iteration:    38, Value: 8.408e-01, Gradient norm: 1.433e-03
+Iteration:    39, Value: 8.408e-01, Gradient norm: 1.083e-03
+Iteration:    40, Value: 8.407e-01, Gradient norm: 7.730e-04
+Iteration:    41, Value: 8.407e-01, Gradient norm: 7.597e-04
+Iteration:    42, Value: 8.407e-01, Gradient norm: 1.602e-03
+Iteration:    43, Value: 8.407e-01, Gradient norm: 1.092e-03
+Iteration:    44, Value: 8.406e-01, Gradient norm: 6.678e-04
+Iteration:    45, Value: 8.406e-01, Gradient norm: 1.844e-03
+Iteration:    46, Value: 8.406e-01, Gradient norm: 6.048e-04
+Iteration:    47, Value: 8.406e-01, Gradient norm: 4.934e-04
+Iteration:    48, Value: 8.406e-01, Gradient norm: 8.211e-04
+Iteration:    49, Value: 8.406e-01, Gradient norm: 1.796e-03
+Iteration:    50, Value: 8.406e-01, Gradient norm: 6.606e-04
+Iteration:    51, Value: 8.406e-01, Gradient norm: 5.772e-04
+Iteration:    52, Value: 8.406e-01, Gradient norm: 6.650e-04
+Iteration:    53, Value: 8.406e-01, Gradient norm: 6.779e-04
+Iteration:    54, Value: 8.406e-01, Gradient norm: 2.070e-03
+Iteration:    55, Value: 8.406e-01, Gradient norm: 8.210e-04
+Iteration:    56, Value: 8.406e-01, Gradient norm: 6.236e-04
+Iteration:    57, Value: 8.405e-01, Gradient norm: 7.373e-04
+Iteration:    58, Value: 8.405e-01, Gradient norm: 1.274e-03
+Iteration:    59, Value: 8.405e-01, Gradient norm: 7.354e-04
+Iteration:    60, Value: 8.405e-01, Gradient norm: 5.904e-04
+Iteration:    61, Value: 8.405e-01, Gradient norm: 1.367e-03
+Iteration:    62, Value: 8.405e-01, Gradient norm: 9.027e-04
+Iteration:    63, Value: 8.405e-01, Gradient norm: 6.328e-04
+Iteration:    64, Value: 8.405e-01, Gradient norm: 6.074e-04
+Iteration:    65, Value: 8.404e-01, Gradient norm: 6.899e-04
+Iteration:    66, Value: 8.404e-01, Gradient norm: 1.670e-03
+Iteration:    67, Value: 8.404e-01, Gradient norm: 1.566e-03
+Iteration:    68, Value: 8.404e-01, Gradient norm: 4.747e-04
+Iteration:    69, Value: 8.404e-01, Gradient norm: 4.076e-04
+Iteration:    70, Value: 8.404e-01, Gradient norm: 9.100e-04
+Iteration:    71, Value: 8.404e-01, Gradient norm: 6.234e-04
+Iteration:    72, Value: 8.404e-01, Gradient norm: 2.556e-04
+Iteration:    73, Value: 8.404e-01, Gradient norm: 2.770e-04
+Iteration:    74, Value: 8.404e-01, Gradient norm: 7.407e-04
+Iteration:    75, Value: 8.404e-01, Gradient norm: 2.578e-04
+Iteration:    76, Value: 8.404e-01, Gradient norm: 2.797e-04
+Iteration:    77, Value: 8.404e-01, Gradient norm: 2.941e-04
+Iteration:    78, Value: 8.404e-01, Gradient norm: 2.657e-04
+Iteration:    79, Value: 8.404e-01, Gradient norm: 8.648e-04
+Iteration:    80, Value: 8.404e-01, Gradient norm: 4.692e-04
+Iteration:    81, Value: 8.404e-01, Gradient norm: 3.789e-04
+Iteration:    82, Value: 8.404e-01, Gradient norm: 6.242e-04
+Iteration:    83, Value: 8.404e-01, Gradient norm: 8.296e-04
+Iteration:    84, Value: 8.404e-01, Gradient norm: 1.321e-03
+Iteration:    85, Value: 8.403e-01, Gradient norm: 7.191e-04
+Iteration:    86, Value: 8.403e-01, Gradient norm: 4.739e-04
+Iteration:    87, Value: 8.403e-01, Gradient norm: 8.479e-04
+Iteration:    88, Value: 8.403e-01, Gradient norm: 6.893e-04
+Iteration:    89, Value: 8.403e-01, Gradient norm: 9.595e-04
+Iteration:    90, Value: 8.403e-01, Gradient norm: 1.622e-03
+Iteration:    91, Value: 8.403e-01, Gradient norm: 5.327e-04
+Iteration:    92, Value: 8.403e-01, Gradient norm: 3.796e-04
+Iteration:    93, Value: 8.403e-01, Gradient norm: 4.027e-04
+Iteration:    94, Value: 8.403e-01, Gradient norm: 5.908e-04
+Iteration:    95, Value: 8.403e-01, Gradient norm: 8.341e-04
+Iteration:    96, Value: 8.403e-01, Gradient norm: 5.092e-04
+Iteration:    97, Value: 8.403e-01, Gradient norm: 4.405e-04
+Iteration:    98, Value: 8.403e-01, Gradient norm: 3.326e-04
+Iteration:    99, Value: 8.403e-01, Gradient norm: 7.549e-04
+Iteration:   100, Value: 8.403e-01, Gradient norm: 3.595e-04
+Iteration:   101, Value: 8.403e-01, Gradient norm: 2.821e-04
+Iteration:   102, Value: 8.403e-01, Gradient norm: 2.886e-04
+Iteration:   103, Value: 8.403e-01, Gradient norm: 6.521e-04
+Iteration:   104, Value: 8.403e-01, Gradient norm: 4.798e-04
+Iteration:   105, Value: 8.403e-01, Gradient norm: 2.308e-04
+Iteration:   106, Value: 8.403e-01, Gradient norm: 2.211e-04
+Iteration:   107, Value: 8.403e-01, Gradient norm: 2.727e-04
+Iteration:   108, Value: 8.403e-01, Gradient norm: 3.806e-04
+Iteration:   109, Value: 8.402e-01, Gradient norm: 1.798e-04
+Iteration:   110, Value: 8.402e-01, Gradient norm: 1.750e-04
+Iteration:   111, Value: 8.402e-01, Gradient norm: 2.204e-04
+Iteration:   112, Value: 8.402e-01, Gradient norm: 4.646e-04
+Iteration:   113, Value: 8.402e-01, Gradient norm: 2.720e-04
+Iteration:   114, Value: 8.402e-01, Gradient norm: 6.739e-04
+Iteration:   115, Value: 8.402e-01, Gradient norm: 1.430e-04
+Iteration:   116, Value: 8.402e-01, Gradient norm: 1.932e-04
+Iteration:   117, Value: 8.402e-01, Gradient norm: 2.705e-04
+Iteration:   118, Value: 8.402e-01, Gradient norm: 3.183e-04
+Iteration:   119, Value: 8.402e-01, Gradient norm: 3.111e-04
+Iteration:   120, Value: 8.402e-01, Gradient norm: 6.686e-04
+Iteration:   121, Value: 8.402e-01, Gradient norm: 2.358e-04
+Iteration:   122, Value: 8.402e-01, Gradient norm: 2.504e-04
+Iteration:   123, Value: 8.402e-01, Gradient norm: 3.144e-04
+Iteration:   124, Value: 8.402e-01, Gradient norm: 2.847e-04
+Iteration:   125, Value: 8.402e-01, Gradient norm: 8.943e-04
+Iteration:   126, Value: 8.402e-01, Gradient norm: 5.044e-04
+Iteration:   127, Value: 8.402e-01, Gradient norm: 2.116e-04
+Iteration:   128, Value: 8.402e-01, Gradient norm: 2.605e-04
+Iteration:   129, Value: 8.402e-01, Gradient norm: 2.945e-04
+Iteration:   130, Value: 8.402e-01, Gradient norm: 4.409e-04
+Iteration:   131, Value: 8.402e-01, Gradient norm: 2.205e-04
+Iteration:   132, Value: 8.402e-01, Gradient norm: 3.207e-04
+Iteration:   133, Value: 8.402e-01, Gradient norm: 4.796e-04
+Iteration:   134, Value: 8.402e-01, Gradient norm: 1.999e-04
+Iteration:   135, Value: 8.402e-01, Gradient norm: 1.620e-04
+Iteration:   136, Value: 8.402e-01, Gradient norm: 2.043e-04
+Iteration:   137, Value: 8.402e-01, Gradient norm: 1.613e-04
+Iteration:   138, Value: 8.402e-01, Gradient norm: 3.057e-04
+Iteration:   139, Value: 8.402e-01, Gradient norm: 1.328e-04
+Iteration:   140, Value: 8.402e-01, Gradient norm: 1.500e-04
+Iteration:   141, Value: 8.402e-01, Gradient norm: 1.838e-04
+Iteration:   142, Value: 8.402e-01, Gradient norm: 1.782e-04
+Iteration:   143, Value: 8.402e-01, Gradient norm: 1.179e-04
+Iteration:   144, Value: 8.402e-01, Gradient norm: 2.297e-04
+Iteration:   145, Value: 8.402e-01, Gradient norm: 2.531e-04
+Iteration:   146, Value: 8.402e-01, Gradient norm: 1.432e-04
+Final value: 8.40e-01, Final gradient norm: 7.59e-05
+</pre></div></div>
+</div>
+</section>
+<section id="Make-predictions-and-compute-the-accuracy-on-the-training-data">
+<h2>Make predictions and compute the accuracy on the training data<a class="headerlink" href="#Make-predictions-and-compute-the-accuracy-on-the-training-data" title="Link to this heading">#</a></h2>
+<p>After the model is trained, you need to make predictions on the training data and compute the accuracy of the predictions. For each residue in the training data, you need to compute the probability of each class and assign the class with the highest probability as the predicted class. Then you need to compare the predicted classes with the true classes and compute the accuracy. The accuracy is the number of correct predictions divided by the total number of predictions.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">predict_per_sample</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict the class of a single sample</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+<span class="sd">        x: jnp.ndarray, the input features of one sample</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: the predicted class of the sample</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">expand_theta</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">xs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Predict the classes of multiple samples by using predict_per_sample and jax.vmap</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theta: jnp.ndarray, the parameters of the model with shape (2, 316)</span>
+<span class="sd">        xs: jnp.ndarray, the input features of multiple samples with shape (n, 316)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        jnp.ndarray: the predicted classes of the samples with shape (n,)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">predict_per_sample</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))(</span><span class="n">theta</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_accuray</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_true</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the accuracy of the model</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_pred: jnp.ndarray, the predicted classes of the samples with shape (n,)</span>
+<span class="sd">        y_true: jnp.ndarray, the true classes of the samples with shape (n,)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: the accuracy of the model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_true</span><span class="p">)</span>
+
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">final_theta</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Compute the accuracy of the model on the training set using the initial theta and the final theta. The accuracy with the initial theta should be around 33% because the initial theta is zero and the model is making random predictions. The accuracy with the final theta should be significantly higher because the model has learned the weights that minimize the loss function on the training data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred_init</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">theta_init</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">)</span>
+<span class="n">accuracy_init</span> <span class="o">=</span> <span class="n">compute_accuray</span><span class="p">(</span><span class="n">y_pred_init</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+
+<span class="n">y_pred_final</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">final_theta</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">)</span>
+<span class="n">accuracy_final</span> <span class="o">=</span> <span class="n">compute_accuray</span><span class="p">(</span><span class="n">y_pred_final</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Accuracy of the model with initial theta: </span><span class="si">{</span><span class="n">accuracy_init</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Accuracy of the model with final theta: </span><span class="si">{</span><span class="n">accuracy_final</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Accuracy of the model with initial theta: 0.38
+Accuracy of the model with final theta: 0.62
+</pre></div></div>
+</div>
+</section>
+<section id="Make-predictions-on-the-test-data">
+<h2>Make predictions on the test data<a class="headerlink" href="#Make-predictions-on-the-test-data" title="Link to this heading">#</a></h2>
+<p>After the model is trained, you need to make predictions on the test sequences. The test sequences are provided in the file <code class="docutils literal notranslate"><span class="pre">test.txt</span></code>. You need to use the trained model to predict the secondary structure of all residues in the test sequences. The predictions should be written to a text file named <code class="docutils literal notranslate"><span class="pre">predictions.txt</span></code> and its format should be the same as the file <code class="docutils literal notranslate"><span class="pre">train.txt</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Process-the-training-data">Process the training data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-loss-function-for-softmax-regression">Define the loss function for softmax regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-the-model">Train the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-and-compute-the-accuracy-on-the-training-data">Make predictions and compute the accuracy on the training data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-on-the-test-data">Make predictions on the test data</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Xinqiang Ding
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Xinqiang Ding.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

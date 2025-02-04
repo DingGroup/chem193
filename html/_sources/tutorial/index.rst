@@ -8,4 +8,5 @@ Tutorials
    numpy-jax.rst
    linear-regression.ipynb
    hpc.rst
+   jax-nn.rst
 

@@ -28,7 +28,8 @@ Schedule
    * - 02/03
      - - `protein secondary structure <_static/lecture_slides/s1-protein-secondary-structure.pdf>`_
        - `deep learning <_static/lecture_slides/4-deep-learning.pdf>`_
-     - `CNN on MNIST <https://docs.kidger.site/equinox/examples/mnist/>`_
+     - - `neural network in JAX <https://jax.readthedocs.io/en/latest/notebooks/Neural_Network_and_Data_Loading.html>`_
+       - `neural network in Equinox <https://docs.kidger.site/equinox/examples/mnist/>`_
      - `predict protein secondary structure <./homework/2-protein-secondary-structure/main.ipynb>`_ (due 02/12)
 
 .. **Journal club presentation**

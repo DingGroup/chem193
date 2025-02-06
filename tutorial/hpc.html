@@ -319,7 +319,10 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-in-to-expanse">Log in to Expanse</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-ssh-related-extensions-for-vs-code">Install SSH-related extensions for VS Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-expanse-to-your-ssh-configuration">Add Expanse to your SSH configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-to-expanse">Logging in to Expanse</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-to-a-compute-node">Logging in to a compute node</a></li>
 </ul>
             </nav>
         </div>
@@ -336,14 +339,87 @@
 <p>For some homework assignments, your laptop or desktop computer may not be powerful enough to run the code in a reasonable amount of time. In these cases, you may want to use a high performance computing (HPC) cluster. This tutorial will show you how to run your code on the HPC cluster <a class="reference external" href="https://www.sdsc.edu/support/user_guides/expanse.html">Expanse</a> at the San Diego Supercomputer Center (SDSC).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial assumes that you have an account at <a class="reference external" href="https://access-ci.org/">ACCESS</a>, have sent your ACCESS username to the instructor, and the instructor has added you to the class project on Expanse.</p>
+<p>This tutorial assumes that your account has been created on Expanse. Here is the full <a class="reference external" href="https://www.sdsc.edu/support/user_guides/expanse.html">Expanse User Guide</a>. We will only need a small subset of the information in this guide, but you may find it useful to refer to the full guide if you have any questions.</p>
+</div>
+<section id="install-ssh-related-extensions-for-vs-code">
+<h2>Install SSH-related extensions for VS Code<a class="headerlink" href="#install-ssh-related-extensions-for-vs-code" title="Link to this heading">#</a></h2>
+<p>To log in to Expanse, you will need to use SSH. If you are using Visual Studio Code, you need to install the following extensions:</p>
+<ul class="simple">
+<li><p>Remote - SSH</p></li>
+<li><p>Remote - SSH: Editing Configuration Files</p></li>
+<li><p>Remote - Tunnel</p></li>
+</ul>
+<p>You can install these extensions by clicking on the Extensions icon on the left side of the VS code window, searching for the extension name, and clicking the Install button.</p>
+</section>
+<section id="add-expanse-to-your-ssh-configuration">
+<h2>Add Expanse to your SSH configuration<a class="headerlink" href="#add-expanse-to-your-ssh-configuration" title="Link to this heading">#</a></h2>
+<p>To log in to Expanse, you need to add the following lines to your SSH configuration file. This file is located at <cite>~/.ssh/config</cite> on your computer. You could check if the file exists by open your home directory using VS code. If the file does not exist or the folder <cite>~/.ssh</cite> does not exist, create it in your home directory using VS code. Then add the following lines to the file <cite>~/.ssh/config</cite>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Host<span class="w"> </span>expanse
+<span class="w">    </span>HostName<span class="w"> </span>login.expanse.sdsc.edu
+<span class="w">    </span>User<span class="w"> </span>YOUR_USER_NAME
+</pre></div>
+</div>
+<p>Replace <cite>YOUR_USER_NAME</cite> with your username on Expanse. Save the file and close it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Your user name on Expanse might be different from your user name on <cite>ACESS</cite>. You can find your user name on Expanse in your ACESS account. After you log in to ACESS, find the page showing your project information. Your user name on Expanse is listed there.</p>
+</div>
+</section>
+<section id="logging-in-to-expanse">
+<h2>Logging in to Expanse<a class="headerlink" href="#logging-in-to-expanse" title="Link to this heading">#</a></h2>
+<p>After adding Expanse to your SSH configuration, you can log in to Expanse using either the terminal or VS Code.</p>
+<p>In a terminal, you could log in to Expanse by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>expanse
+</pre></div>
+</div>
+<p>It will ask you for your password. After entering your password, you should be logged in to Expanse.</p>
+<p>If you are using VS Code, you can log in to Expanse by clicking on the Remote Explorer icon on the left side of the VS Code window. Then click on the SSH Targets icon at the top of the Remote Explorer window. You should see <cite>expanse</cite> in the list of SSH targets. Click on <cite>expanse</cite> to log in to Expanse.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The node you log in to in the above steps is a login node. You can write your code and move files around on the login node, but you should not run your code on the login node. Instead, you should run your code on a compute node. The following sections will show you how to login to a compute node and run your code.</p>
+</div>
+</section>
+<section id="logging-in-to-a-compute-node">
+<h2>Logging in to a compute node<a class="headerlink" href="#logging-in-to-a-compute-node" title="Link to this heading">#</a></h2>
+<p>Compute nodes are shared resources on the HPC cluster and are managed by the job scheduler Slurm. To use a compute node, you need to request it from Slurm. When you request a compute node, you can specify the number of CPUs, the amount of memory, and the amount of time you need. The following is an example of how to request a compute node in terminal after you have logged in to a login node:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>srun<span class="w"> </span>--account<span class="o">=</span>tft109<span class="w"> </span>--pty<span class="w"> </span>-p<span class="w"> </span>compute<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">1</span><span class="w"> </span>--mem<span class="o">=</span>1G<span class="w"> </span>--time<span class="o">=</span><span class="m">1</span>:00:00<span class="w"> </span>--wait<span class="o">=</span><span class="m">0</span><span class="w"> </span>--export<span class="o">=</span>ALL<span class="w"> </span>/bin/bash
+</pre></div>
+</div>
+<p>The above command requests a compute node with 1 CPU, 1GB of memory, and 1 hour of time. You can change the values of <cite>–nodes</cite>, <cite>–ntasks-per-node</cite>, <cite>–mem</cite>, and <cite>–time</cite> to request more resources. The <cite>–account</cite> flag specifies the project <cite>tft109</cite> that you are using.</p>
+<p>If there are available resources and your request is accepted by Slurm, you will be logged in to a compute node. You can run your code on the compute node.</p>
+<p>To request a compute node with a GPU, you can use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>srun<span class="w"> </span>--account<span class="o">=</span>tft109<span class="w"> </span>--pty<span class="w"> </span>-p<span class="w"> </span>gpu<span class="w"> </span>--gpus<span class="o">=</span><span class="m">1</span><span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">1</span><span class="w"> </span>--mem<span class="o">=</span>1G<span class="w"> </span>--time<span class="o">=</span><span class="m">1</span>:00:00<span class="w"> </span>--wait<span class="o">=</span><span class="m">0</span><span class="w"> </span>--export<span class="o">=</span>ALL<span class="w"> </span>/bin/bash
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Here is the full <a class="reference external" href="https://www.sdsc.edu/support/user_guides/expanse.html">Expanse User Guide</a>. We will only need a small subset of the information in this guide, but you may find it useful to refer to the full guide if you have any questions.</p>
+<p>Please be mindful of the resources you request, as you are sharing the
+resources granted to this course with other students in the class. Once your requested resources are granted by Slurm, they are considered used, even if they are not used fully. For example, if you request a compute node with 10 hours of time and only use it for 1 hour, the remaining 9 hours are considered used.</p>
 </div>
-<section id="log-in-to-expanse">
-<h2>Log in to Expanse<a class="headerlink" href="#log-in-to-expanse" title="Link to this heading">#</a></h2>
+<p>Now you are assigned a compute node and can run your code on it via the terminal. What if you want to run your code in VS Code? For example, you may want to use the interactive debugger or run a Jupyter notebook in VS Code on the compute node. To do this, you could use ssh tunneling. This requires a few more steps.</p>
+<ol class="arabic simple">
+<li><p>Copy the vscode command line tool to your directory. You could do this on either the login node or the compute node by running the following command. You only need to do this once.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">## cope the vscode command to your directory</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/apps
+cp<span class="w"> </span>/home/xding1/apps/code<span class="w"> </span>~/apps
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You only need to copy the vscode command once. The next time you want to login to a compute node, you can skip this step.</p>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>On a compute node that you have logged in to using the <cite>srun</cite> command, run the following command to start the ssh tunnel:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/apps/code<span class="w"> </span>tunnel
+</pre></div>
+</div>
+<p>This command will ask you what account to use for the tunnel. Select using Github account. It will then provide you with a URL and a passcode. Open the URL in your browser and enter the passcode. It might ask you to log in to your Github account if you are not already logged in. After you enter the passcode, the tunnel should be established.</p>
+<ol class="arabic simple" start="3">
+<li><p>Open the Remote Explorer in VS Code. Click on the Tunnels icon at the top of the Remote Explorer window. You should see a tunnel with the name of the compute node you are logged in to. Click on the tunnel to open a new VS Code window that is connected to the compute node.</p></li>
+</ol>
+<p>Now you can run your code in VS Code on the compute node. You can use the interactive debugger, run Jupyter notebooks, and use other features of VS Code.</p>
 </section>
 </section>
 
@@ -393,7 +469,10 @@
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-in-to-expanse">Log in to Expanse</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-ssh-related-extensions-for-vs-code">Install SSH-related extensions for VS Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-expanse-to-your-ssh-configuration">Add Expanse to your SSH configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-to-expanse">Logging in to Expanse</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-to-a-compute-node">Logging in to a compute node</a></li>
 </ul>
   </nav></div>
 

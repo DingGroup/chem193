@@ -31,7 +31,7 @@ Schedule
      - - `HPC <./tutorial/hpc.rst>`_
        - `neural network in JAX <https://jax.readthedocs.io/en/latest/notebooks/Neural_Network_and_Data_Loading.html>`_
        - `neural network in Equinox <https://docs.kidger.site/equinox/examples/mnist/>`_
-     - `predict protein secondary structure <./homework/2-protein-secondary-structure/main.ipynb>`_ (due 02/12)
+     - `predict protein secondary structure <./homework/2-protein-secondary-structure/main.ipynb>`_ (due 02/17)
 
 .. **Journal club presentation**
 

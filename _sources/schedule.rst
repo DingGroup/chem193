@@ -1,6 +1,31 @@
 Schedule
 ===============
 
+Journal club presentation
+-------------------------
+
+The journal club presentation will be during the lecture time on **March 11**. Each study group need to select a research article and submit the title and authors of the article to the instructor by **February 28**. Each study group will have 20 minutes to present the research article and 4 minutes for Q&A. Every groupe member should participate in the presentation. The presentation should at least cover the following points:
+
+- What is the problem the paper is trying to solve or the question it is trying to answer?
+- What are the key ideas and techniques used in the paper?
+- What is the main contribution or result of the paper?
+- What are the strengths and weaknesses of the paper?
+
+The objective of the presentation is to let the audience understand these points without reading the paper. The presentation should be clear, concise, and engaging. The presentation should be in the form of slides. The slides should be submitted to the instructor by **March 10**.
+
+The research article should be in the field of using ML/MD to study biophysical problems, broadly defined. It could be an application of ML/MD to a biophysical problem and a methodological paper that develops new ML/MD methods. The article should be published in a peer-reviewed journal or conference proceedings such as:
+
+- General journals: *Nature, Science, Nature Methods, Nature Biotechnology, Nature Communications, PNAS*
+- General chemistry/physics journals: *Journal of American Chemical Society, Angewandte Chemie International Edition, ACS Central Science, Physical Review Letters, Physical Review X*
+- Specialized chemistry/physics/biophysical journals: *Journal of Chemical Theory and Computation, Journal of Chemical Information and Modeling, Journal of Physical Chemistry Letters, Journal of Physical Chemistry B, Journal of Chemical Physics, PLOS Computational Biology, Biophysical Journal*
+- ML Conference proceedings: *NeurIPS, ICML, ICLR, AISTATS, UAI*
+
+
+
+Lecture schedule
+----------------
+
+
 .. list-table::
    :header-rows: 1
    :widths: 15 30 25 30
@@ -38,5 +63,4 @@ Schedule
      -     
      -    
 
-.. **Journal club presentation**
 

@@ -1,5 +1,7 @@
 Schedule
 ===============
+    
+
 
 Journal club presentation
 -------------------------
@@ -60,7 +62,8 @@ Lecture schedule
    * - 02/10
      - - `deep learning <_static/lecture_slides/4-deep-learning.pdf>`_   
        - `generalization and regularization <_static/lecture_slides/5-generalization-and-regularization.pdf>`_ . 
-     -     
-     -    
+     - - `neural network in JAX <https://jax.readthedocs.io/en/latest/notebooks/Neural_Network_and_Data_Loading.html>`_
+       - `neural network in Equinox <https://docs.kidger.site/equinox/examples/mnist/>`_ 
+     - Prepare for journal club presentation (research article selection due 02/28)
 
 

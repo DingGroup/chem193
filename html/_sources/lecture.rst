@@ -7,3 +7,4 @@ Lecture Slides
 - `Classification and logistic regression <_static/lecture_slides/3-classification-and-logistic-regression.pdf>`_
 - `Deep learning <_static/lecture_slides/4-deep-learning.pdf>`_
 - `Protein secondary structure <_static/lecture_slides/s1-protein-secondary-structure.pdf>`_
+- `Generalization and regularization <_static/lecture_slides/s2-generalization-and-regularization.pdf>`_

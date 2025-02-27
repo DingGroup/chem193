@@ -71,6 +71,7 @@ Lecture schedule
        - `neural network in Equinox <https://docs.kidger.site/equinox/examples/mnist/>`_   
      -
    * - 02/24
-     - `statistical mechanics <_static/lecture_slides/6-statistical-mechanics.pdf>`_
+     - - `statistical mechanics <_static/lecture_slides/6-statistical-mechanics.pdf>`_  
+       - `classical force fields <_static/lecture_slides/7-classical-force-fields.pdf>`_
      -  
      -  

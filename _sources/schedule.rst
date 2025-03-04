@@ -75,3 +75,10 @@ Lecture schedule
        - `classical force fields <_static/lecture_slides/7-classical-force-fields.pdf>`_
      -  
      -  
+   * - 03/02
+     - `monte carlo simulation <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_  
+     - 
+     - 
+
+
+       

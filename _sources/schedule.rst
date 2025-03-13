@@ -79,6 +79,11 @@ Lecture schedule
      - `monte carlo simulation <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_  
      - 
      - 
+   * - 03/09  
+     - `monte carlo simulation <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_ 
+     - `sample from probability distribution <./tutorial/sample-from-probability-distributions.ipynb>`_
+     - Journal club presentation (slides due 03/10)
+     
 
 
        

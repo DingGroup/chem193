@@ -9,4 +9,5 @@ Tutorials
    linear-regression.ipynb
    hpc.rst
    jax-nn.rst
+   sample-from-probability-distributions.ipynb
 

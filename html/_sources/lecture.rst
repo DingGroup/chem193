@@ -10,3 +10,4 @@ Lecture Slides
 - `generalization and regularization <_static/lecture_slides/s2-generalization-and-regularization.pdf>`_
 - `statistical mechanics <_static/lecture_slides/6-statistical-mechanics.pdf>`_
 - `slassical force fields <_static/lecture_slides/7-classical-force-fields.pdf>`_
+- `Monte Carlo simulations <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_

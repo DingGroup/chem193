@@ -1,0 +1,958 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Predict protein secondary structure with deep neural networks &#8212; Chem 193</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'homework/3-protein-secondary-structure-nn/script/main';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="prev" title="Predict protein secondary structure" href="../../2-protein-secondary-structure/script/main.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Chem 193</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../schedule.html">Schedule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../syllabus.html">Syllabus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lecture.html">Lecture Slides</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorial/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/python-basics.html">Python Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/numpy-jax.html">Numpy &amp; JAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/linear-regression.html">Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/hpc.html">High Performance Computing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/jax-nn.html">Neural networks with JAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/sample-from-probability-distributions.html">Sample from probability distributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">Homeworks</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../0-linear-algebra.html">Linear Algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../1-python-basics/main.html">Processing protein MSA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../2-protein-secondary-structure/script/main.html">Predicting protein secondary structure</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Predicting protein secondary structure with neural networks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/DingGroup/Chem-193" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/homework/3-protein-secondary-structure-nn/script/main.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Predict protein secondary structure with deep neural networks</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Input-and-output-of-the-neural-network-model">Input and output of the neural network model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Process-the-training-data">Process the training data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-neural-network-model">The neural network model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Training-the-model">Training the model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-the-model-using-stochastic-gradient-descent-(SGD)-with-the-Adam-optimizer">Train the model using stochastic gradient descent (SGD) with the Adam optimizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-loss-and-accuracy-curves-during-training">Plot the loss and accuracy curves during training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-model-with-the-highest-validation-accuracy">Save the model with the highest validation accuracy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-on-the-test-data">Make predictions on the test data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Submission-instructions">Submission instructions</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Predict-protein-secondary-structure-with-deep-neural-networks">
+<h1>Predict protein secondary structure with deep neural networks<a class="headerlink" href="#Predict-protein-secondary-structure-with-deep-neural-networks" title="Link to this heading">#</a></h1>
+<p><strong>Author</strong>: YOUR_NAME</p>
+<p><strong>Due date</strong>: March 30, 2025, 11:59 PM</p>
+<p>This assignment is similar to the <a class="reference external" href="https://dinglab.io/chem193/homework/2-protein-secondary-structure/script/main.html#">previous one</a> but uses deep neural networks instead of simple linear models. It also uses larger datasets. The training and test datasets are provided in the text files <a class="reference external" href="https://tufts.box.com/s/y4t82o03hhf92zw6dik0x9r7v09qdyhs">train.txt</a> and <a class="reference external" href="https://tufts.box.com/s/v4ypbippcsnifjlkd7vrp478bb7ue92l">test.txt</a>, respectively. The format of the datasets is the same as in
+the previous assignment. The task is to train a deep neural network model using the training dataset and predict the secondary structure of the proteins using their sequences in the test dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">equinox</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">eqx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">exit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.random</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<section id="Input-and-output-of-the-neural-network-model">
+<h2>Input and output of the neural network model<a class="headerlink" href="#Input-and-output-of-the-neural-network-model" title="Link to this heading">#</a></h2>
+<p>Similary to the previous assignment, the model will predict the secondary structure of a protein using the sliding window approach. It predicts the secondary structure of a residue based on a window of residues centered at that residue. In the previous assignment, the window size was 15. In this assignment, the window size is a hyperparameter that you can choose. The default value is 31, but you can change it to any odd number.</p>
+<p>Assume that the window size is <code class="docutils literal notranslate"><span class="pre">k</span></code>. The input to the neural network model is a 1d array of <code class="docutils literal notranslate"><span class="pre">k</span></code> integers, each representing the index of that residue in the amino acid alphabet, <code class="docutils literal notranslate"><span class="pre">ACDEFGHIKLMNPQRSTVWY*</span></code>. For example, if <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">5</span></code>, the sequence <code class="docutils literal notranslate"><span class="pre">ACACG</span></code> will be represented as <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">5]</span></code>. The output of the model is a 1d array of 3 floats, each representing the logorihtm of the probability of the corresponding secondary structure, <code class="docutils literal notranslate"><span class="pre">helix</span></code>, <code class="docutils literal notranslate"><span class="pre">strand</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code>. For example, the
+output <code class="docutils literal notranslate"><span class="pre">[-1.0986123,</span> <span class="pre">-1.0986123,</span> <span class="pre">-1.0986123]</span></code> represents the probabilities <code class="docutils literal notranslate"><span class="pre">[0.333,</span> <span class="pre">0.333,</span> <span class="pre">0.333]</span></code> for the secondary structures <code class="docutils literal notranslate"><span class="pre">helix</span></code>, <code class="docutils literal notranslate"><span class="pre">strand</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code>, respectively.</p>
+<section id="Process-the-training-data">
+<h3>Process the training data<a class="headerlink" href="#Process-the-training-data" title="Link to this heading">#</a></h3>
+<p>Given the design of the model, the data in <code class="docutils literal notranslate"><span class="pre">train.txt</span></code> are not directly suitable for training. The data need to be processed to create the input and output pairs for the model. For each sequence in the training data, we extract all windows of size <code class="docutils literal notranslate"><span class="pre">k</span></code> and convert both the amino acid sequence and the secondary structure to the integer representation. The following two code cells show how it is done.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## you need to change `path_to_train` to the path of the train.txt file</span>
+<span class="n">path_to_train</span> <span class="o">=</span> <span class="s2">&quot;../data/train.txt&quot;</span>
+
+<span class="c1">## read data from train.txt</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1">## train_seq is a dictionary with the following structure:</span>
+<span class="c1">## train_seq[protein_name] = (sequence, secondary_structure),</span>
+<span class="c1">## where protein_name is the name of the protein, sequence is the amino acid sequence of the protein, and secondary_structure is the secondary structure of the protein as given in the train.txt file</span>
+
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_train</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">train_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">train_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+
+<span class="c1">## here we split the data into training and validation data</span>
+<span class="c1">## we use 80% of the data for training and 20% for validation</span>
+
+<span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">names_validation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="o">*</span><span class="mf">0.2</span><span class="p">),</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">valid_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">train_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_validation</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_validation</span><span class="p">:</span>
+    <span class="n">train_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of training samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of validation samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_windows_per_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">secondary_structure</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">31</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get windows for a single sequence</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seq (str): amino acid sequence</span>
+<span class="sd">        secondary_structure (str): secondary structure</span>
+<span class="sd">        window_size (int): window size</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        xs (np.array): input windows</span>
+<span class="sd">        ys (np.array): output windows</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">## amino acid order</span>
+    <span class="n">amino_acids</span> <span class="o">=</span> <span class="s2">&quot;ACDEFGHIKLMNPQRSTVWY*&quot;</span>
+
+    <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">amino_acids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">window_size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">amino_acids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="n">seq</span> <span class="o">+</span> <span class="p">[</span><span class="n">amino_acids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)]</span>
+
+    <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">window_size</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">-</span> <span class="n">window_size</span><span class="o">//</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">window_size</span><span class="o">//</span><span class="mi">2</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">window_size</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secondary_structure</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">window_size</span><span class="o">//</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_windows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">31</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get windows for a dataset&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict): dataset</span>
+<span class="sd">        window_size (int): window size</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        xs (np.array): input windows</span>
+<span class="sd">        ys (np.array): output windows</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">seq</span><span class="p">,</span> <span class="n">ss</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_windows_per_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">ss</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window_size</span><span class="p">)</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## the default window size is 31 amino acids (15 on each side of the central amino acid)</span>
+<span class="c1">## you can change the window size by changing the value of the window_size variable</span>
+<span class="n">window_size</span> <span class="o">=</span> <span class="mi">31</span>
+
+<span class="c1">## get windows for training and validation data</span>
+<span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span> <span class="o">=</span> <span class="n">get_windows</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">window_size</span><span class="p">)</span>
+<span class="n">valid_xs</span><span class="p">,</span> <span class="n">valid_ys</span> <span class="o">=</span> <span class="n">get_windows</span><span class="p">(</span><span class="n">valid_data</span><span class="p">,</span> <span class="n">window_size</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="The-neural-network-model">
+<h2>The neural network model<a class="headerlink" href="#The-neural-network-model" title="Link to this heading">#</a></h2>
+<p>You need to implement a deep neural network model using the <code class="docutils literal notranslate"><span class="pre">equinox</span></code> library. The input and output of the model are described above.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">############################################################################################################  write your code for the following NeuralNetwork class (50 points)</span>
+<span class="c1">####################################################################################################</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NeuralNetwork</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Forward pass</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (jnp.array): 1D array of integers representing amino acids in a window</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            logp (jnp.array): 1D array of 3 floats representing log-probabilities of secondary structure classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Training-the-model">
+<h2>Training the model<a class="headerlink" href="#Training-the-model" title="Link to this heading">#</a></h2>
+<p>To train the model, you need to finish the implementation of the <code class="docutils literal notranslate"><span class="pre">loss_fn</span></code> function. The function takes the model, a batch of input and output pairs, and returns the loss. The loss should be the same as the loss function used in the previous assignment. To monitor the training process, you also need to implement the three functions: <code class="docutils literal notranslate"><span class="pre">make_predictions</span></code>, and <code class="docutils literal notranslate"><span class="pre">compute_accuracy</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Note that you could comment the @eqx.filter_jit decorator during the development of the loss function so that the error messages are more informative. Once the loss function is working, you can uncomment the decorator to speed up the training process. The same applies to the make_predictions function</span>
+
+<span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">loss_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Loss function for a batch of windows</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (NeuralNetwork): neural network model</span>
+<span class="sd">        xs (jnp.array): 2D array of integers representing amino acids in windows. Shape:(batch_size, window_size)</span>
+<span class="sd">        ys (jnp.array): 1D array of integers representing secondary structure classes. Shape: (batch_size,)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        loss (jnp.array): the average loss over the batch</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">##############################################################################################</span>
+    <span class="c1">#### write your code loss function (10 points)</span>
+    <span class="c1">###############################################################################################</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+
+<span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Make predictions for a batch of windows&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (NeuralNetwork): neural network model</span>
+<span class="sd">        xs (jnp.array): 2D array of integers representing amino acids in windows. Shape:(batch_size, window_size)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        predictions (jnp.array): 1D array of integers representing predicted secondary structure classes. Shape: (batch_size,)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1">################################################</span>
+    <span class="c1">#### write your code loss function (10 points)</span>
+    <span class="c1">################################################</span>
+
+
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_average_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="o">*</span><span class="mi">16</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute average loss for a dataset of windows by batching</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (NeuralNetwork): neural network model</span>
+<span class="sd">        xs (jnp.array): 2D array of integers representing amino acids in windows. Shape:(num_samples, window_size)</span>
+<span class="sd">        ys (jnp.array): 1D array of integers representing secondary structure classes. Shape: (num_samples,)</span>
+<span class="sd">        batch_size (int): batch size</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        loss (float): average loss over the dataset</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">idx_batch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="n">idx_batch</span> <span class="o">*</span> <span class="n">batch_size</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">batch_size</span>
+        <span class="n">batch_xs</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+        <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">ys</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span><span class="p">)</span>
+        <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span> <span class="o">*</span> <span class="n">batch_xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="o">*</span><span class="mi">16</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute accuracy for a dataset of windows by batching&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (NeuralNetwork): neural network model</span>
+<span class="sd">        xs (jnp.array): 2D array of integers representing amino acids in windows. Shape:(num_samples, window_size)</span>
+<span class="sd">        ys (jnp.array): 1D array of integers representing secondary structure classes. Shape: (num_samples,)</span>
+<span class="sd">        batch_size (int): batch size</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        accuracy (float): accuracy over the dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1">#####################################################</span>
+    <span class="c1">####  write your code loss function (10 points)  ####</span>
+    <span class="c1">#####################################################</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+<br/><br/><br/></pre></div>
+</div>
+</div>
+<section id="Train-the-model-using-stochastic-gradient-descent-(SGD)-with-the-Adam-optimizer">
+<h3>Train the model using stochastic gradient descent (SGD) with the Adam optimizer<a class="headerlink" href="#Train-the-model-using-stochastic-gradient-descent-(SGD)-with-the-Adam-optimizer" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## initialize the model</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+
+<span class="c1">## initialize the optimizer</span>
+<span class="c1">## the learning rate is set to 0.001</span>
+<span class="n">optim</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adamw</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">))</span>
+
+<span class="c1">## training loop</span>
+<span class="c1">## Note that you could comment the @eqx.filter_jit decorator during the development so that the error messages are more informative. Once you are done, you can uncomment the decorator to speed up the training process</span>
+<span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_step</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Make a single optimization step using a batch of windows</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (NeuralNetwork): neural network model</span>
+<span class="sd">        batch_xs (jnp.array): 2D array of integers representing amino acids in windows. Shape:(batch_size, window_size)</span>
+<span class="sd">        batch_ys (jnp.array): 1D array of integers representing secondary structure classes. Shape: (batch_size,)</span>
+<span class="sd">        opt_state (optax.OptState): optimizer state</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        model (NeuralNetwork): updated neural network model</span>
+<span class="sd">        opt_state (optax.OptState): updated optimizer state</span>
+<span class="sd">        loss_value (float): loss value for the batch</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">loss_value</span><span class="p">,</span> <span class="n">grads</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter_value_and_grad</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">)(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span><span class="p">)</span>
+    <span class="n">updates</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">grads</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">loss_value</span>
+</pre></div>
+</div>
+</div>
+<p>The following code cell shows how to train the model using the Adam optimizer. We monitor the training process by computing the loss and accuracy on the training and validation datasets after each epoch.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## set the number of epochs and batch size</span>
+<span class="c1">## you can change both as needed</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">16</span>
+
+<span class="n">train_loss_record</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">valid_loss_record</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">train_accuracy_record</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">valid_accuracy_record</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_xs</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">train_xs</span> <span class="o">=</span> <span class="n">train_xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">train_ys</span> <span class="o">=</span> <span class="n">train_ys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_xs</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="k">for</span> <span class="n">idx_batch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="n">idx_batch</span> <span class="o">*</span> <span class="n">batch_size</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">batch_size</span>
+        <span class="n">batch_xs</span> <span class="o">=</span> <span class="n">train_xs</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+        <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">train_ys</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+
+        <span class="n">model</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">loss_value</span> <span class="o">=</span> <span class="n">make_step</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">idx_batch</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">5&gt;d</span><span class="si">}</span><span class="s2">, batch </span><span class="si">{</span><span class="n">idx_batch</span><span class="si">:</span><span class="s2">5&gt;d</span><span class="si">}</span><span class="s2">, train_loss </span><span class="si">{</span><span class="n">loss_value</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="n">compute_average_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+    <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+
+    <span class="n">valid_loss</span> <span class="o">=</span> <span class="n">compute_average_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">valid_xs</span><span class="p">,</span> <span class="n">valid_ys</span><span class="p">)</span>
+    <span class="n">valid_accuracy</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">valid_xs</span><span class="p">,</span> <span class="n">valid_ys</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">&gt;5d</span><span class="si">}</span><span class="s2">, train_loss </span><span class="si">{</span><span class="n">train_loss</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">, valid_loss </span><span class="si">{</span><span class="n">valid_loss</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">, train_accuracy </span><span class="si">{</span><span class="n">train_accuracy</span><span class="si">:</span><span class="s2">7.2%</span><span class="si">}</span><span class="s2">, valid_accuracy </span><span class="si">{</span><span class="n">valid_accuracy</span><span class="si">:</span><span class="s2">7.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">train_loss_record</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_loss</span><span class="p">)</span>
+    <span class="n">valid_loss_record</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_loss</span><span class="p">)</span>
+    <span class="n">train_accuracy_record</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_accuracy</span><span class="p">)</span>
+    <span class="n">valid_accuracy_record</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_accuracy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-the-loss-and-accuracy-curves-during-training">
+<h3>Plot the loss and accuracy curves during training<a class="headerlink" href="#Plot-the-loss-and-accuracy-curves-during-training" title="Link to this heading">#</a></h3>
+<p>To visualize the training process, we plot the loss and accuracy curves during training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_loss_record</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train_loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">valid_loss_record</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;valid_loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_accuracy_record</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train_accuracy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">valid_accuracy_record</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;valid_accuracy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Based on the loss and accuracy curves, answer the following question</strong>: (10 points)</p>
+<p>As the number of epochs increases, what happens to the loss and accuracy on the training and validation datasets? Why the behavior of the loss/accuracy curves is different on the training and validation datasets?</p>
+<p><em>Your answer to the above question</em></p>
+</section>
+<section id="Save-the-model-with-the-highest-validation-accuracy">
+<h3>Save the model with the highest validation accuracy<a class="headerlink" href="#Save-the-model-with-the-highest-validation-accuracy" title="Link to this heading">#</a></h3>
+<p>To avoid overfitting, we save the model with the highest validation accuracy after each epoch.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## re-initialize the model</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+
+<span class="c1">## initialize the optimizer</span>
+<span class="c1">## the learning rate is set to 0.001</span>
+<span class="n">optim</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adamw</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">))</span>
+
+
+<span class="c1">## you can change the number of epochs and batch size as needed</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">16</span>
+
+<span class="n">highest_valid_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">best_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_xs</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">train_xs</span> <span class="o">=</span> <span class="n">train_xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">train_ys</span> <span class="o">=</span> <span class="n">train_ys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_xs</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="k">for</span> <span class="n">idx_batch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="n">idx_batch</span> <span class="o">*</span> <span class="n">batch_size</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">batch_size</span>
+        <span class="n">batch_xs</span> <span class="o">=</span> <span class="n">train_xs</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+        <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">train_ys</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+
+        <span class="n">model</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">loss_value</span> <span class="o">=</span> <span class="n">make_step</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">idx_batch</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">5&gt;d</span><span class="si">}</span><span class="s2">, batch </span><span class="si">{</span><span class="n">idx_batch</span><span class="si">:</span><span class="s2">5&gt;d</span><span class="si">}</span><span class="s2">, train_loss </span><span class="si">{</span><span class="n">loss_value</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="n">compute_average_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+    <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_xs</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">)</span>
+
+    <span class="n">valid_loss</span> <span class="o">=</span> <span class="n">compute_average_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">valid_xs</span><span class="p">,</span> <span class="n">valid_ys</span><span class="p">)</span>
+    <span class="n">valid_accuracy</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">valid_xs</span><span class="p">,</span> <span class="n">valid_ys</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">:</span><span class="s2">5&gt;d</span><span class="si">}</span><span class="s2">, train_loss </span><span class="si">{</span><span class="n">train_loss</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">, valid_loss </span><span class="si">{</span><span class="n">valid_loss</span><span class="si">:</span><span class="s2">5.3f</span><span class="si">}</span><span class="s2">, train_accuracy </span><span class="si">{</span><span class="n">train_accuracy</span><span class="si">:</span><span class="s2">7.2%</span><span class="si">}</span><span class="s2">, valid_accuracy </span><span class="si">{</span><span class="n">valid_accuracy</span><span class="si">:</span><span class="s2">7.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">valid_accuracy</span> <span class="o">&gt;</span> <span class="n">highest_valid_accuracy</span><span class="p">:</span>
+        <span class="n">highest_valid_accuracy</span> <span class="o">=</span> <span class="n">valid_accuracy</span>
+        <span class="n">eqx</span><span class="o">.</span><span class="n">tree_serialise_leaves</span><span class="p">(</span><span class="s2">&quot;../output/model-with-highest-valid-accuracy.eqx&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;model saved with highest valid accuracy: </span><span class="si">{</span><span class="n">highest_valid_accuracy</span><span class="si">:</span><span class="s2">7.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Make-predictions-on-the-test-data">
+<h2>Make predictions on the test data<a class="headerlink" href="#Make-predictions-on-the-test-data" title="Link to this heading">#</a></h2>
+<p>After the model is trained, you make predictions on the test sequences using saved model that has the highest validation accuracy. The test sequences are provided in the file <code class="docutils literal notranslate"><span class="pre">test.txt</span></code>. You need to use the trained model to predict the secondary structure of all residues in the test sequences. The predictions should be written to a text file named <code class="docutils literal notranslate"><span class="pre">predictions.txt</span></code> and its format should be the same as the file <code class="docutils literal notranslate"><span class="pre">train.txt</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## load the model with the highest validation accuracy</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">tree_deserialise_leaves</span><span class="p">(</span><span class="s2">&quot;../output/model-with-highest-valid-accuracy.eqx&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+<span class="c1">#### write your code here for the task described above (10 points) ########</span>
+<span class="c1">###########################################################################</span>
+<br/><br/><br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Submission-instructions">
+<h2>Submission instructions<a class="headerlink" href="#Submission-instructions" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>You need to create a folder named <code class="docutils literal notranslate"><span class="pre">assignment-3-protein-secondary-structure-nn</span></code> under the OneDrive folder that has been shared with you.</p></li>
+<li><p>Complete the code and answer the questions as described above in this Jupyter notebook. Make sure to save your work and name your Jupyter notebook as <code class="docutils literal notranslate"><span class="pre">main.ipynb</span></code>.</p></li>
+<li><p>Upload the <code class="docutils literal notranslate"><span class="pre">main.ipynb</span></code>, <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, and <code class="docutils literal notranslate"><span class="pre">test_prediction.txt</span></code> files to the <code class="docutils literal notranslate"><span class="pre">assignment-3-protein-secondary-structure-nn</span></code> folder that you created in step 1.</p></li>
+</ol>
+<p><strong>Note:</strong> Please make sure the names of the folder and files are exactly as instructed.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../../2-protein-secondary-structure/script/main.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Predict protein secondary structure</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Input-and-output-of-the-neural-network-model">Input and output of the neural network model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Process-the-training-data">Process the training data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-neural-network-model">The neural network model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Training-the-model">Training the model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-the-model-using-stochastic-gradient-descent-(SGD)-with-the-Adam-optimizer">Train the model using stochastic gradient descent (SGD) with the Adam optimizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-loss-and-accuracy-curves-during-training">Plot the loss and accuracy curves during training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-model-with-the-highest-validation-accuracy">Save the model with the highest validation accuracy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Make-predictions-on-the-test-data">Make predictions on the test data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Submission-instructions">Submission instructions</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Xinqiang Ding
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Xinqiang Ding.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

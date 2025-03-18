@@ -58,7 +58,7 @@ Lecture schedule
      - - `HPC <./tutorial/hpc.rst>`_
        - `neural network in JAX <https://jax.readthedocs.io/en/latest/notebooks/Neural_Network_and_Data_Loading.html>`_
        - `neural network in Equinox <https://docs.kidger.site/equinox/examples/mnist/>`_
-     - `predict protein secondary structure <./homework/2-protein-secondary-structure/main.ipynb>`_ (due 02/17)
+     - `predict protein secondary structure <./homework/2-protein-secondary-structure/script/main.ipynb>`_ (due 02/17)
    * - 02/10
      - - `deep learning <_static/lecture_slides/4-deep-learning.pdf>`_   
        - `generalization and regularization <_static/lecture_slides/5-generalization-and-regularization.pdf>`_   
@@ -83,7 +83,13 @@ Lecture schedule
      - `monte carlo simulation <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_ 
      - `sample from probability distribution <./tutorial/sample-from-probability-distributions.ipynb>`_
      - Journal club presentation (slides due 03/10)
-     
+   * - 03/16
+     - spring break
+     -
+     -
+   * - 03/23
+     - 
+     - 
+     - `predict protein secondary structure with neural networks <./homework/3-protein-secondary-structure-nn/script/main.ipynb>`_ (due 03/30)
 
-
-       
+  

@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Metropolis-Hastings Algorithm &#8212; Chem 193</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/mcmc';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Homeworks" href="../homework/index.html" />
+    <link rel="prev" title="Sample from probability distributions" href="sample-from-probability-distributions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Chem 193</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../syllabus.html">Syllabus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lecture.html">Lecture Slides</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="python-basics.html">Python Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numpy-jax.html">Numpy &amp; JAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linear-regression.html">Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hpc.html">High Performance Computing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jax-nn.html">Neural networks with JAX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample-from-probability-distributions.html">Sample from probability distributions</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Metropolis-Hastings Algorithm</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../homework/index.html">Homeworks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../homework/0-linear-algebra.html">Linear Algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../homework/1-python-basics/main.html">Processing protein MSA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../homework/2-protein-secondary-structure/script/main.html">Predicting protein secondary structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../homework/3-protein-secondary-structure-nn/script/main.html">Predicting protein secondary structure with neural networks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/DingGroup/Chem-193" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/tutorial/mcmc.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Metropolis-Hastings Algorithm</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Mixtures-of-two-normal-distributions-in-2D">1. Mixtures of two normal distributions in 2D</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Probability-density-function">Probability density function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Sample-using-Metropolis-Hastings-algorithm">Sample using Metropolis-Hastings algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Banana-shaped-distribution">2. Banana-shaped distribution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Probability density function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Sample using Metropolis-Hastings algorithm</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Metropolis-Hastings-Algorithm">
+<h1>Metropolis-Hastings Algorithm<a class="headerlink" href="#Metropolis-Hastings-Algorithm" title="Link to this heading">#</a></h1>
+<p>In this tutorial, we implement the Metropolis-Hasting algorithm to sample from two probability distributions. The first distribution is the a mixture of two normal distributions in 2D and the second distribution is a banana-shaped distribution in 2D.</p>
+<section id="1.-Mixtures-of-two-normal-distributions-in-2D">
+<h2>1. Mixtures of two normal distributions in 2D<a class="headerlink" href="#1.-Mixtures-of-two-normal-distributions-in-2D" title="Link to this heading">#</a></h2>
+<section id="Probability-density-function">
+<h3>Probability density function<a class="headerlink" href="#Probability-density-function" title="Link to this heading">#</a></h3>
+<p>The probability density function (PDF) of the mixture of two normal distributions in 2D used in this tutorial is given by:</p>
+<div class="math notranslate nohighlight">
+\[p(x) = \alpha \cdot \phi(x \mid \mu_1, \sigma_1) + (1 - \alpha) \cdot \phi(x \mid \mu_2, \sigma_2)\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\phi(x \mid \mu, \sigma)\)</span> is the PDF of the 2d normal distribution with mean <span class="math notranslate nohighlight">\(\mu\)</span> and standard deviation <span class="math notranslate nohighlight">\(\sigma\)</span>. Here we assume that the standard deviation is the same in both dimensions and there is no correlation between the dimensions.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha\)</span> is the weight of the first normal distribution.</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(\phi(x \mid \mu, \sigma)\)</span> is given by:</p>
+<div class="math notranslate nohighlight">
+\[\phi(x \mid \mu, \sigma) = \frac{1}{2\pi\sigma^2} \exp\left(-\frac{1}{2\sigma^2} (x - \mu)^T(x - \mu)\right)\]</div>
+<p>In this tutorial, we use the following parameters:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha = 0.5\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu_1 = [0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu_2 = [5, -4]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma_1 = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma_2 = 1.5\)</span></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax</span><span class="w"> </span><span class="kn">import</span> <span class="n">vmap</span><span class="p">,</span> <span class="n">jit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.random</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;seaborn-v0_8-talk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_prob_mixture_of_normal</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mu1</span><span class="o">=</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">mu2</span><span class="o">=</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]),</span> <span class="n">sigma1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="mf">1.5</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;</span>
+<span class="sd">    Compute the log probability of a point x under the Gaussian Mixture Model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : jnp.array</span>
+<span class="sd">        A 2D point</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        The weight of the first Gaussian component</span>
+<span class="sd">    mu1 : jnp.array</span>
+<span class="sd">        The mean of the first Gaussian component</span>
+<span class="sd">    mu2 : jnp.array</span>
+<span class="sd">        The mean of the second Gaussian component</span>
+<span class="sd">    sigma1 : float</span>
+<span class="sd">        The standard deviation of the first Gaussian component for both dimensions, the covariance matrix is diagonal</span>
+<span class="sd">    sigma2 : float</span>
+<span class="sd">        The standard deviation of the second Gaussian component for both dimensions, the covariance matrix is diagonal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute the probability of x under the first Gaussian component</span>
+    <span class="n">prob1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma1</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma1</span><span class="o">**</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute the probability of x under the second Gaussian component</span>
+    <span class="n">prob2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma2</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma2</span><span class="o">**</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute the probability of x under the Gaussian Mixture Model</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">prob1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">prob2</span>
+
+    <span class="k">return</span> <span class="n">prob</span>
+</pre></div>
+</div>
+</div>
+<p>Plot the PDF of the mixture of two normal distributions to visualize the distribution. The distribution has two modes, one at the origin and the other at <span class="math notranslate nohighlight">\((5, -4)\)</span>. The two modes are separated by a region of low probability density.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## plot contour of the probability</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">X1</span><span class="p">,</span> <span class="n">X2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">prob</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">vmap</span><span class="p">(</span><span class="n">compute_prob_mixture_of_normal</span><span class="p">))(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Probability contour of the Gaussian Mixture Model&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_7_0.png" src="../_images/tutorial_mcmc_7_0.png" />
+</div>
+</div>
+</section>
+<section id="Sample-using-Metropolis-Hastings-algorithm">
+<h3>Sample using Metropolis-Hastings algorithm<a class="headerlink" href="#Sample-using-Metropolis-Hastings-algorithm" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">genrate_proposal_mixture_of_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Propose a new point x&#39; given the current point x&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">jr</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+
+
+<span class="nd">@jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">one_step_mixture_of_normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform one step of the Metropolis-Hastings algorithm&quot;&quot;&quot;</span>
+
+    <span class="c1">## Generate a proposal</span>
+    <span class="n">subkey</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_proposal</span> <span class="o">=</span> <span class="n">genrate_proposal_mixture_of_normal</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="c1">## Compute the acceptance probability</span>
+    <span class="n">p_x</span> <span class="o">=</span> <span class="n">compute_prob_mixture_of_normal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">p_x_proposal</span> <span class="o">=</span> <span class="n">compute_prob_mixture_of_normal</span><span class="p">(</span><span class="n">x_proposal</span><span class="p">)</span>
+    <span class="n">accept_prob</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_x_proposal</span> <span class="o">/</span> <span class="n">p_x</span><span class="p">]))</span>
+
+    <span class="c1">## Accept or reject the proposal</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_new</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">u</span> <span class="o">&lt;</span> <span class="n">accept_prob</span><span class="p">,</span> <span class="n">x_proposal</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x_new</span>
+</pre></div>
+</div>
+</div>
+<p>Run the Metropolis-Hastings algorithm</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## generate a random initial point</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">subkey1</span><span class="p">,</span> <span class="n">subkey2</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">x_init</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">subkey1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">minval</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+        <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">subkey2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">minval</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial point: </span><span class="si">{</span><span class="n">x_init</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1">## generate samples</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">3000</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_init</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)):</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">subkey</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_init</span> <span class="o">=</span> <span class="n">one_step_mixture_of_normal</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">x_init</span><span class="p">)</span>
+    <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_init</span><span class="p">)</span>
+
+<span class="n">samples</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Initial point: [ 6.4231415 -7.927062 ]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 3000/3000 [00:00&lt;00:00, 12021.82it/s]
+</pre></div></div>
+</div>
+<p>Plot samples</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Samples from the Gaussian Mixture Model&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_13_0.png" src="../_images/tutorial_mcmc_13_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Iteration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Trace plot of the samples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_14_0.png" src="../_images/tutorial_mcmc_14_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="2.-Banana-shaped-distribution">
+<h2>2. Banana-shaped distribution<a class="headerlink" href="#2.-Banana-shaped-distribution" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>Probability density function<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>The probability density function (PDF) of the banana-shaped distribution is given by:</p>
+<div class="math notranslate nohighlight">
+\[p(x_1, x_2) = \frac{1}{2\pi\sigma_1\sigma_2} \exp\left(-\frac{1}{2} \frac{x_1^2}{\sigma_1^2} \right) + \exp\left(-\frac{1}{2}\frac{(x_2 - a x_1^2)^2}{\sigma_2^2}\right)\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p>$ <span class="math">\sigma</span>_1 $ and $ <span class="math">\sigma</span>_2 $ are the standard deviations.</p></li>
+<li><p>$ a $ is a parameter that controls the curvature of the banana shape.</p></li>
+</ul>
+<p>In this tutorial, we use the following parameters:</p>
+<ul class="simple">
+<li><p>$ a = 0.25 $</p></li>
+<li><p>$ <span class="math">\sigma</span>_1 = 2 $</p></li>
+<li><p>$ <span class="math">\sigma</span>_2 = 0.5 $</p></li>
+</ul>
+<p>Define the function to compute the PDF of the banana-shaped distribution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_prob_banana_dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">sigma1</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">):</span>
+    <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">x1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sigma1</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sigma2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prob</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Visualize the PDF of the banana-shaped distribution.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x1</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">X1</span><span class="p">,</span> <span class="n">X2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">prob</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">vmap</span><span class="p">(</span><span class="n">compute_prob_banana_dist</span><span class="p">))(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Log probability contour of the target distribution&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_20_0.png" src="../_images/tutorial_mcmc_20_0.png" />
+</div>
+</div>
+</section>
+<section id="id2">
+<h3>Sample using Metropolis-Hastings algorithm<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_proposal_banana</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">jr</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="nd">@jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">one_step_banana</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">subkey</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_proposal</span> <span class="o">=</span> <span class="n">generate_proposal_banana</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">p_x</span> <span class="o">=</span> <span class="n">compute_prob_banana_dist</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">p_x_proposal</span> <span class="o">=</span> <span class="n">compute_prob_banana_dist</span><span class="p">(</span><span class="n">x_proposal</span><span class="p">)</span>
+
+    <span class="n">accept_prob</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_x_proposal</span> <span class="o">/</span> <span class="n">p_x</span><span class="p">]))</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_new</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">u</span> <span class="o">&lt;</span> <span class="n">accept_prob</span><span class="p">,</span> <span class="n">x_proposal</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x_new</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Run the Metropolis-Hastings algorithm</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## generate a random initial point</span>
+<span class="n">subkey1</span><span class="p">,</span> <span class="n">subkey2</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">x_init</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">subkey1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">minval</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">jr</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">subkey2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">minval</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial point: </span><span class="si">{</span><span class="n">x_init</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1">## generate samples</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">3000</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_init</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)):</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">subkey</span> <span class="o">=</span> <span class="n">jr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">x_init</span> <span class="o">=</span> <span class="n">one_step_banana</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">x_init</span><span class="p">)</span>
+    <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_init</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Initial point: [-2.7357197  2.219818 ]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 3000/3000 [00:00&lt;00:00, 14819.20it/s]
+</pre></div></div>
+</div>
+<p>Plot samples</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;x2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Samples from the banana distribution&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_26_0.png" src="../_images/tutorial_mcmc_26_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Iteration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Trace plot of the samples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_mcmc_27_0.png" src="../_images/tutorial_mcmc_27_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sample-from-probability-distributions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Sample from probability distributions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../homework/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Homeworks</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Mixtures-of-two-normal-distributions-in-2D">1. Mixtures of two normal distributions in 2D</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Probability-density-function">Probability density function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Sample-using-Metropolis-Hastings-algorithm">Sample using Metropolis-Hastings algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Banana-shaped-distribution">2. Banana-shaped distribution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Probability density function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Sample using Metropolis-Hastings algorithm</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Xinqiang Ding
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Xinqiang Ding.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

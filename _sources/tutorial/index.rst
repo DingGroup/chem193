@@ -10,5 +10,5 @@ Tutorials
    hpc.rst
    jax-nn.rst
    sample-from-probability-distributions.ipynb
-   mcmc.ipynb
+   metropolis-hastings-algorithm.ipynb
 

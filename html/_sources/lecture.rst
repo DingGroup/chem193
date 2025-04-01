@@ -11,3 +11,6 @@ Lecture Slides
 - `statistical mechanics <_static/lecture_slides/6-statistical-mechanics.pdf>`_
 - `slassical force fields <_static/lecture_slides/7-classical-force-fields.pdf>`_
 - `Monte Carlo simulations <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_
+- `Monte Carlo simulations of molecular systems <_static/lecture_slides/9-monte-carlo-simulations-of-molecular-systems.pdf>`_  
+- `moecular dynamics simulations <_static/lecture_slides/10-molecular-dynamics-simulations.pdf>`_ 
+

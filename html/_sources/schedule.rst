@@ -91,3 +91,7 @@ Lecture schedule
      - `monte carlo simulations of molecular systems <_static/lecture_slides/9-monte-carlo-simulations-of-molecular-systems.pdf>`_
      - `Metroplis-Hastings algorithm <./tutorial/metropolis-hastings-algorithm.ipynb>`_
      - `predict protein secondary structure with neural networks <./homework/3-protein-secondary-structure-nn/script/main.ipynb>`_ (due 03/30)
+   * - 03/30
+     - `molecular dynamics simulations <_static/lecture_slides/10-molecular-dynamics-simulations.pdf>`_
+     -
+     -

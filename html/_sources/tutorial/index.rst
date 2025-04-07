@@ -11,4 +11,5 @@ Tutorials
    jax-nn.rst
    sample-from-probability-distributions.ipynb
    metropolis-hastings-algorithm.ipynb
+   molecular-simulations-with-openmm.ipynb
 

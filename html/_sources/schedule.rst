@@ -93,5 +93,5 @@ Lecture schedule
      - `predict protein secondary structure with neural networks <./homework/3-protein-secondary-structure-nn/script/main.ipynb>`_ (due 03/30)
    * - 03/30
      - `molecular dynamics simulations <_static/lecture_slides/10-molecular-dynamics-simulations.pdf>`_
-     -
+     - `molecular simulations with OpenMM <./tutorial/molecular-simulations-with-openmm.ipynb>`_
      -

@@ -53,6 +53,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/molecular-simulations-with-openmm';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Homeworks" href="../homework/index.html" />
+    <link rel="prev" title="Metropolis-Hastings Algorithm" href="metropolis-hastings-algorithm.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -104,8 +106,6 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
@@ -144,11 +144,11 @@
 </button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../schedule.html">Schedule</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../syllabus.html">Syllabus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lecture.html">Lecture Slides</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="python-basics.html">Python Basics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numpy-jax.html">Numpy &amp; JAX</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linear-regression.html">Linear Regression</a></li>
@@ -156,6 +156,7 @@
 <li class="toctree-l2"><a class="reference internal" href="jax-nn.html">Neural networks with JAX</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sample-from-probability-distributions.html">Sample from probability distributions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="metropolis-hastings-algorithm.html">Metropolis-Hastings Algorithm</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Molecular dynamics simulations with OpenMM</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../homework/index.html">Homeworks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -326,6 +327,7 @@
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-A-1-D-harmonic-oscillator">1. A 1-D harmonic oscillator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-A-box-of-water">2. A box of water</a></li>
 </ul>
             </nav>
         </div>
@@ -340,30 +342,41 @@
   <section id="Molecular-dynamics-simulations-with-OpenMM">
 <h1>Molecular dynamics simulations with OpenMM<a class="headerlink" href="#Molecular-dynamics-simulations-with-OpenMM" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="http://openmm.org/">OpenMM</a> is software library for performing molecular dynamics simulations. It is designed to be flexible and efficient and it focuses on simulations of biomolecules. OpenMM is written in C++ and CUDA and has Python bindings, which makes it easy to use in Python scripts. In this example, we will show how to set up molecular dynamics simulations using OpenMM.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openmm</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mm</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">openmm.app</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">app</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">openmm.unit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">unit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">nglview</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mdtraj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-v0_8-talk&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "457e07cff00741a789699b87fc56ee2d", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <section id="1.-A-1-D-harmonic-oscillator">
 <h2>1. A 1-D harmonic oscillator<a class="headerlink" href="#1.-A-1-D-harmonic-oscillator" title="Link to this heading">#</a></h2>
 <p>We will start with a simple example of a 1-D harmonic oscillator. In the example, we have a particle of mass 1 amu that is connected to a fixed point by a spring. The particle is constrained to move along the x-axis. The spring has a force constant of 1 kJ/mol/nm^2. The equilibrium position of the particle is at (0, 0, 0), which means the force is zero when the particle is at the origin.</p>
 <p>OpenMM uses a class called <code class="docutils literal notranslate"><span class="pre">System</span></code> to represent the system that we want to simulate. The <code class="docutils literal notranslate"><span class="pre">System</span></code> class contains a list of particles and a list of forces acting on those particles. To simulate the 1-D harmonic oscillator described above, we need to create a <code class="docutils literal notranslate"><span class="pre">System</span></code> object for it.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## initialize an empty system</span>
 <span class="n">system</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">System</span><span class="p">()</span>
 
-<span class="c1">## dd two particles to the system, the first one will be fixed and the second one</span>
+<span class="c1">## add two particles to the system, the first one will be fixed at (0, 0, 0) and the second one</span>
 <span class="c1">## will be free to move in the x axis. The two particles will be connected by a spring</span>
 
 <span class="c1">## add the first particle with mass 0 amu</span>
@@ -371,127 +384,9 @@
 <span class="n">system</span><span class="o">.</span><span class="n">addParticle</span><span class="p">(</span><span class="mi">0</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">amu</span><span class="p">)</span>
 
 <span class="c1">## add the second particle with mass 1 amu</span>
-<span class="n">system</span><span class="o">.</span><span class="n">addParticle</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">amu</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-1
-</pre></div></div>
-</div>
-<p>To model the spring between the two particles, we will add a force between the two particles. The force is given by Hooke’s law: <span class="math notranslate nohighlight">\(f = -kx\)</span>, where <span class="math notranslate nohighlight">\(k\)</span> is the force constant and <span class="math notranslate nohighlight">\(x\)</span> is the displacement from the equilibrium position. The potential energy corresponding to this force is given by <span class="math notranslate nohighlight">\(V = \frac{1}{2}kx^2\)</span>, which is called the harmonic potential. As a rule of thumb, it is usually easier to specify the potential energy function rather than the force function.</p>
-<p>OpenMM has a built-in class called <code class="docutils literal notranslate"><span class="pre">HarmonicBondForce</span></code> for harmonic potentials.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## initialize a HarmonicBondForce</span>
-<span class="n">harmonic_force</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">HarmonicBondForce</span><span class="p">()</span>
+<span class="n">system</span><span class="o">.</span><span class="n">addParticle</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">amu</span><span class="p">)</span>
 
-<span class="c1">## specify that the force is between the particles with index 0 and 1.</span>
-<span class="c1">## the index of a particle is the order in which it was added to the system and starts at 0</span>
-<span class="n">harmonic_force</span><span class="o">.</span><span class="n">addBond</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">angstrom</span><span class="p">,</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">angstrom</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="c1">## add the force to the system</span>
-<span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">harmonic_force</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-0
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">k_external</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">external_force</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">CustomExternalForce</span><span class="p">(</span><span class="s1">&#39;0.5*k_external*(y^2 + z^2)&#39;</span><span class="p">)</span>
-<span class="n">external_force</span><span class="o">.</span><span class="n">addGlobalParameter</span><span class="p">(</span><span class="s1">&#39;k_external&#39;</span><span class="p">,</span> <span class="n">k_external</span><span class="p">)</span>
-<span class="n">external_force</span><span class="o">.</span><span class="n">addParticle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
-
-<span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">external_force</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-1
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">integrator</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">VerletIntegrator</span><span class="p">(</span><span class="n">stepSize</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">)</span>
-<span class="n">platform</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s2">&quot;Reference&quot;</span><span class="p">)</span>
-<span class="n">context</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="p">)</span>
-
-<span class="c1">## set the initial positions of the particles</span>
-<span class="n">init_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 0</span>
-        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 1</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-
-<span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">init_x</span><span class="p">)</span>
-<br/><br/><br/></pre></div>
-</div>
-</div>
-<p>Run a simulation of the system. We use a Langevin integrator to simulate the system at a constant temperature of 300 K. Using OpenMM, we can choose to run simulations on different platforms that support different hardware. Here we use the Reference platform, which is the slowest one and is useful for testing and debugging. The CPU platform should be used for running production simulations on a CPU. The CUDA platform uses NVIDIA GPUs and is the fastest one. It should be used for running
-production simulations on a GPU. Here our system is too small to benefit from GPU acceleration, so we use the Reference platform.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">integrator</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">LangevinMiddleIntegrator</span><span class="p">(</span><span class="mi">300</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span> <span class="mf">0.002</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">)</span>
-
-<span class="c1">## request the Reference platform</span>
-<span class="n">platform</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s1">&#39;Reference&#39;</span><span class="p">)</span>
-
-<span class="c1">## create a simulation context</span>
-<span class="n">context</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="p">)</span>
-
-<span class="c1">## set the initial positions of the particles</span>
-<span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">angstrom</span>
-<span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Running the simulation involves repeatedly calling the step() method of the integrator. This advances the simulation by a specified number of time steps. As the simulation runs, we can query the state of the system to get information about it. For example, here we record the positions and potential energy of the system every 1000 steps.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## run the simulation</span>
-<span class="n">xyz</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">us</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3000</span><span class="p">):</span>
-    <span class="c1">## run 1000 steps of dynamics</span>
-    <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
-
-    <span class="c1">## get the positions and potential energy of the system and record them</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getPositions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">(</span><span class="n">asNumpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">angstrom</span><span class="p">))</span>
-    <span class="n">u</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPotentialEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
-    <span class="n">us</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> kJ/mol&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of particles in the system: &quot;</span><span class="p">,</span> <span class="n">system</span><span class="o">.</span><span class="n">getNumParticles</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -500,54 +395,227 @@ production simulations on a GPU. Here our system is too small to benefit from GP
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-99 3.314 kJ/mol
-199 1.258 kJ/mol
-299 7.066 kJ/mol
-399 1.335 kJ/mol
-499 1.128 kJ/mol
-599 5.104 kJ/mol
-699 0.614 kJ/mol
-799 1.375 kJ/mol
-899 0.966 kJ/mol
-999 1.010 kJ/mol
-1099 0.585 kJ/mol
-1199 1.013 kJ/mol
-1299 0.495 kJ/mol
-1399 1.245 kJ/mol
-1499 2.760 kJ/mol
-1599 0.758 kJ/mol
-1699 1.128 kJ/mol
-1799 2.066 kJ/mol
-1899 3.559 kJ/mol
-1999 1.161 kJ/mol
-2099 3.399 kJ/mol
-2199 5.848 kJ/mol
-2299 2.791 kJ/mol
-2399 2.857 kJ/mol
-2499 2.127 kJ/mol
-2599 1.957 kJ/mol
-2699 3.724 kJ/mol
-2799 1.057 kJ/mol
-2899 1.768 kJ/mol
-2999 0.873 kJ/mol
+Number of particles in the system:  2
 </pre></div></div>
 </div>
-<p>Now that the simulation is complete, let us analyze the trajectory. We will calculate the distance between the two particles and plot a histogram of the distances and the time series of the distance.</p>
+<p>To model the spring between the two particles, we will add a force between the two particles. The force is given by Hooke’s law: <span class="math notranslate nohighlight">\(f = -kx\)</span>, where <span class="math notranslate nohighlight">\(k\)</span> is the force constant and <span class="math notranslate nohighlight">\(x\)</span> is the displacement from the equilibrium position. The potential energy corresponding to this force is given by <span class="math notranslate nohighlight">\(V = \frac{1}{2}kx^2\)</span>, which is called the harmonic potential. As a rule of thumb, it is usually easier to specify the potential energy function rather than the force function.</p>
+<p>OpenMM has a built-in class called <code class="docutils literal notranslate"><span class="pre">HarmonicBondForce</span></code> for harmonic potentials.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Now let&#39;s analyze the trajectory</span>
-<span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## initialize a HarmonicBondForce</span>
+<span class="n">harmonic_force</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">HarmonicBondForce</span><span class="p">()</span>
 
-<span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">xyz</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1">## specify that the force is between the particles with index 0 and 1.</span>
+<span class="c1">## the index of a particle is the order in which it was added to the system and starts at 0</span>
+<span class="c1">## because the first particle will be fixed at (0, 0, 0), we set the equilibrium distance to 0 nm</span>
+<span class="c1">## so that the equilibrium position of the second particle is at (0, 0, 0)</span>
+<span class="n">harmonic_force</span><span class="o">.</span><span class="n">addBond</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="o">**</span><span class="mi">2</span>
+<span class="p">)</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Distance (angstrom)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Probability Density&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="c1">## add the force to the system</span>
+<span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">harmonic_force</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0
+</pre></div></div>
+</div>
+<p>In OpenMM, each particle has three coordinates <span class="math notranslate nohighlight">\((x, y, z)\)</span>. To mimic the constraint of the second particle along the x-axis, we add a large external force on the second particle in the y and z directions. This force is large enough to keep the second particle from moving in the y and z directions. We use <code class="docutils literal notranslate"><span class="pre">`CustomExternalForce</span></code> &lt;<a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.CustomExternalForce.html#openmm.openmm.CustomExternalForce">http://docs.openmm.org/latest/api-python/generated/openmm.openmm.CustomExternalForce.html#openmm.openmm.CustomExternalForce</a>&gt;`__ in OpenMM to apply this force. The
+<code class="docutils literal notranslate"><span class="pre">CustomExternalForce</span></code> class allows us to specify a custom force function that can depend on the coordinates of the particles. In this case, we will use a harmonic potential in the y and z directions with a large force constant and the equilibrium position at 0.0. This will create a large force on the second particle in the y and z directions if it moves away from 0 in those directions. It effectively constrains the second particle to move only in the x direction.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">k_external</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">external_force</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">CustomExternalForce</span><span class="p">(</span><span class="s2">&quot;0.5*k_external*(y^2 + z^2)&quot;</span><span class="p">)</span>
+<span class="n">external_force</span><span class="o">.</span><span class="n">addGlobalParameter</span><span class="p">(</span><span class="s2">&quot;k_external&quot;</span><span class="p">,</span> <span class="n">k_external</span><span class="p">)</span>
+<span class="n">external_force</span><span class="o">.</span><span class="n">addParticle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">external_force</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<p>To simulate the system, we need to specify the integrator used to integrate the equations of motion. OpenMM has several built-in integrators, including <code class="docutils literal notranslate"><span class="pre">LangevinIntegrator</span></code>, <code class="docutils literal notranslate"><span class="pre">VerletIntegrator</span></code>, and <code class="docutils literal notranslate"><span class="pre">BrownianIntegrator</span></code>. In this example, we will first use the <code class="docutils literal notranslate"><span class="pre">VerletIntegrator</span></code> to integrate the Hamiltonian equations of motion.</p>
+<p>In addition, we also need to specify the kind of hardware we are using to run the simulation. OpenMM can run on a CPU or a GPU and it uses the class <code class="docutils literal notranslate"><span class="pre">Platform</span></code> to specify the hardware. In this example, we will use the <code class="docutils literal notranslate"><span class="pre">CPU</span></code> platform to run the simulation on the CPU.</p>
+<p>There is one more thing we need to do before we can run the simulation in OpenMM. OpenMM uses a class called <a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.Context.html#openmm.openmm.Context">Context</a> to represent the complete state of a simulation and a <code class="docutils literal notranslate"><span class="pre">Context</span></code> object is created from a <code class="docutils literal notranslate"><span class="pre">System</span></code> object, an <code class="docutils literal notranslate"><span class="pre">Integrator</span></code> object, and a <code class="docutils literal notranslate"><span class="pre">Platform</span></code> object. The <code class="docutils literal notranslate"><span class="pre">Context</span></code> object contains among other things the positions and velocities of all the particles in the
+system. Before running the simulation, we also need to set the initial positions and velocities of the particles in the context.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## create an integrator with a time step of 0.1 ps</span>
+<span class="c1">## you could change the size of the time step to see how it affects the simulation</span>
+<span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">VerletIntegrator</span><span class="p">(</span><span class="n">step_size</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">)</span>
+
+<span class="c1">## pick a platform</span>
+<span class="c1">## in this case we will use the CPU platform</span>
+<span class="c1">## if you want to use NVIDIA GPU, you could use &quot;CUDA&quot; instead</span>
+<span class="n">platform</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
+
+<span class="c1">## create a context</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="p">)</span>
+
+
+<span class="c1">## set the initial positions of the particles</span>
+<span class="n">init_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 0</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 1</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">init_x</span><span class="p">)</span>
+
+<span class="c1">## set the initial velocities of the particles</span>
+<span class="n">init_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 0</span>
+        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>  <span class="c1"># particle 1</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">setVelocities</span><span class="p">(</span><span class="n">init_v</span><span class="p">)</span>
+
+<span class="c1">## because the initial velocity of the second particle is (1, 0, 0) and its initial position</span>
+<span class="c1">## is at the equilibrium position of the spring, the total energy of the second particle is</span>
+<span class="c1">## 0.5 * m * v^2 = 0.5 * 1 * 1^2 = 0.5</span>
+</pre></div>
+</div>
+</div>
+<p>Now we are ready to run the simulation. To take a time step in the simulation, we call the <code class="docutils literal notranslate"><span class="pre">step</span></code> method of the integrator. After taking a time step, we record the new positions and velocities of the particles from the context.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positions</span>
+<span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># velocities</span>
+<span class="n">us</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># potential energy</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># kinetic energy</span>
+<span class="n">es</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># total energy</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+    <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getPositions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getVelocities</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">(</span><span class="n">asNumpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getVelocities</span><span class="p">(</span><span class="n">asNumpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span>
+        <span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span>
+    <span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPotentialEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getKineticEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+
+    <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">us</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">ks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">es</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;step: </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">;  u: </span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; x: </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; k: </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; v: </span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; e: </span><span class="si">{</span><span class="n">u</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+<span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+<span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">us</span><span class="p">)</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+step:   1;  u:  0.005; x:  0.100; k:  0.495; v:  1.000; e:  0.500
+step:   2;  u:  0.020; x:  0.199; k:  0.480; v:  0.990; e:  0.500
+step:   3;  u:  0.044; x:  0.296; k:  0.456; v:  0.970; e:  0.500
+step:   4;  u:  0.076; x:  0.390; k:  0.424; v:  0.940; e:  0.500
+step:   5;  u:  0.115; x:  0.480; k:  0.385; v:  0.901; e:  0.500
+step:   6;  u:  0.160; x:  0.566; k:  0.340; v:  0.853; e:  0.500
+step:   7;  u:  0.208; x:  0.645; k:  0.292; v:  0.797; e:  0.501
+step:   8;  u:  0.258; x:  0.718; k:  0.243; v:  0.732; e:  0.501
+step:   9;  u:  0.308; x:  0.785; k:  0.193; v:  0.661; e:  0.501
+step:  10;  u:  0.355; x:  0.843; k:  0.146; v:  0.582; e:  0.501
+step:  11;  u:  0.398; x:  0.893; k:  0.103; v:  0.498; e:  0.501
+step:  12;  u:  0.436; x:  0.933; k:  0.065; v:  0.409; e:  0.501
+step:  13;  u:  0.466; x:  0.965; k:  0.036; v:  0.315; e:  0.501
+step:  14;  u:  0.487; x:  0.987; k:  0.014; v:  0.219; e:  0.501
+step:  15;  u:  0.499; x:  0.999; k:  0.002; v:  0.120; e:  0.501
+step:  16;  u:  0.501; x:  1.001; k:  0.000; v:  0.020; e:  0.501
+step:  17;  u:  0.493; x:  0.993; k:  0.008; v: -0.080; e:  0.501
+step:  18;  u:  0.475; x:  0.975; k:  0.026; v: -0.179; e:  0.501
+step:  19;  u:  0.449; x:  0.947; k:  0.053; v: -0.277; e:  0.501
+step:  20;  u:  0.414; x:  0.910; k:  0.087; v: -0.371; e:  0.501
+step:  21;  u:  0.373; x:  0.864; k:  0.128; v: -0.462; e:  0.501
+step:  22;  u:  0.327; x:  0.809; k:  0.174; v: -0.549; e:  0.501
+step:  23;  u:  0.278; x:  0.746; k:  0.222; v: -0.630; e:  0.501
+step:  24;  u:  0.228; x:  0.676; k:  0.272; v: -0.704; e:  0.501
+step:  25;  u:  0.179; x:  0.598; k:  0.321; v: -0.772; e:  0.500
+step:  26;  u:  0.133; x:  0.515; k:  0.368; v: -0.832; e:  0.500
+step:  27;  u:  0.091; x:  0.427; k:  0.409; v: -0.883; e:  0.500
+step:  28;  u:  0.056; x:  0.334; k:  0.444; v: -0.926; e:  0.500
+step:  29;  u:  0.028; x:  0.238; k:  0.472; v: -0.959; e:  0.500
+step:  30;  u:  0.010; x:  0.140; k:  0.490; v: -0.983; e:  0.500
+step:  31;  u:  0.001; x:  0.040; k:  0.499; v: -0.997; e:  0.500
+step:  32;  u:  0.002; x: -0.060; k:  0.498; v: -1.001; e:  0.500
+step:  33;  u:  0.013; x: -0.159; k:  0.487; v: -0.995; e:  0.500
+step:  34;  u:  0.033; x: -0.257; k:  0.467; v: -0.979; e:  0.500
+step:  35;  u:  0.062; x: -0.353; k:  0.438; v: -0.954; e:  0.500
+step:  36;  u:  0.099; x: -0.444; k:  0.401; v: -0.918; e:  0.500
+step:  37;  u:  0.141; x: -0.532; k:  0.359; v: -0.874; e:  0.500
+step:  38;  u:  0.188; x: -0.614; k:  0.312; v: -0.821; e:  0.500
+step:  39;  u:  0.238; x: -0.690; k:  0.263; v: -0.759; e:  0.501
+step:  40;  u:  0.288; x: -0.759; k:  0.213; v: -0.690; e:  0.501
+step:  41;  u:  0.336; x: -0.820; k:  0.164; v: -0.614; e:  0.501
+step:  42;  u:  0.382; x: -0.874; k:  0.119; v: -0.532; e:  0.501
+step:  43;  u:  0.421; x: -0.918; k:  0.080; v: -0.445; e:  0.501
+step:  44;  u:  0.454; x: -0.953; k:  0.047; v: -0.353; e:  0.501
+step:  45;  u:  0.479; x: -0.979; k:  0.022; v: -0.258; e:  0.501
+step:  46;  u:  0.495; x: -0.995; k:  0.006; v: -0.160; e:  0.501
+step:  47;  u:  0.501; x: -1.001; k:  0.000; v: -0.060; e:  0.501
+step:  48;  u:  0.497; x: -0.997; k:  0.004; v:  0.040; e:  0.501
+step:  49;  u:  0.483; x: -0.983; k:  0.018; v:  0.139; e:  0.501
+step:  50;  u:  0.460; x: -0.960; k:  0.041; v:  0.238; e:  0.501
+</pre></div></div>
+</div>
+<p>Plot the numerical trajectory in the phase space of <span class="math notranslate nohighlight">\((x, p_x)\)</span> where x is the x-coordinate of the particle and p_x is the x-component of the momentum of the particle. The numerical trajectory is compared to the analytical trajectory. You could change the step size used in the integrator to see how it affects the accuracy of the numerical trajectory.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span> <span class="o">=</span> <span class="n">vs</span>  <span class="c1">## momentum</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ps</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;numerial trajectory&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+    <span class="s2">&quot;k--&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;analytical trajectory&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x position (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$p_x$ momentum (nm/ps)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -558,16 +626,519 @@ production simulations on a GPU. Here our system is too small to benefit from GP
 <img alt="../_images/tutorial_molecular-simulations-with-openmm_13_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_13_0.png" />
 </div>
 </div>
+<p>Plot the potential energy and kinetic energy of the particle as a function of time. The Hamiltonian equation of motion is energy conserving, so the total energy of the system is close to a constant. The small oscillations in the total energy are due to numerical errors in the integration. The kinetic energy and potential energy oscillate in time. Because the Hamiltonian equations is energy conserving, conformations sampled by integrating the Hamiltonian equations are the ones from the system’s
+NVE ensemble.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">))</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;potential energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">))</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">ks</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;kinetic energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">))</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">us</span> <span class="o">+</span> <span class="n">ks</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;total energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;time (ps)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;energy (kJ/mol)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_molecular-simulations-with-openmm_15_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_15_0.png" />
+</div>
+</div>
+<p>To sample from the NVT ensemble, we can use the <code class="docutils literal notranslate"><span class="pre">LangevinIntegrator</span></code> instead of the <code class="docutils literal notranslate"><span class="pre">VerletIntegrator</span></code>. The Langevin integrator integrates the Langevin equations of motion, which mathematically models the effect of a heat bath on the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## construct a Langevin integrator at temperature T</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span>
+    <span class="n">T</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span>  <span class="c1"># temperature</span>
+    <span class="mi">1</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span>  <span class="c1"># friction coefficient</span>
+    <span class="n">step_size</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">,</span>  <span class="c1"># time step</span>
+<span class="p">)</span>
+
+<span class="n">platform</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">init_x</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">setVelocitiesToTemperature</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positions</span>
+<span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># velocities</span>
+<span class="n">us</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># potential energy</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># kinetic energy</span>
+<span class="n">es</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># total energy</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5000</span><span class="p">):</span>
+    <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getPositions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getVelocities</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">(</span><span class="n">asNumpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getVelocities</span><span class="p">(</span><span class="n">asNumpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span>
+        <span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span>
+    <span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPotentialEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getKineticEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+
+    <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">vs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">us</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">ks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">es</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;step: </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">;  u: </span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; x: </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; k: </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; v: </span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">; e: </span><span class="si">{</span><span class="n">u</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="si">:</span><span class="s2">6.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+<span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+<span class="n">us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">us</span><span class="p">)</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">vs</span>  <span class="c1">## momentum</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+step: 100;  u:  1.815; x: -0.516; k:  7.429; v: -2.982; e:  9.243
+step: 200;  u:  1.539; x:  0.770; k:  2.317; v:  2.113; e:  3.856
+step: 300;  u:  0.599; x: -0.840; k:  8.698; v: -0.595; e:  9.297
+step: 400;  u:  3.638; x: -1.226; k:  1.864; v:  0.881; e:  5.502
+step: 500;  u:  9.677; x: -2.026; k:  1.591; v:  1.617; e: 11.268
+step: 600;  u:  0.333; x:  0.128; k:  5.552; v: -3.181; e:  5.884
+step: 700;  u:  3.577; x: -0.944; k:  0.823; v:  0.759; e:  4.399
+step: 800;  u:  6.732; x:  3.057; k:  3.320; v:  2.312; e: 10.053
+step: 900;  u:  0.782; x:  1.121; k:  2.650; v: -1.610; e:  3.432
+step: 1000;  u:  0.274; x: -0.190; k:  0.723; v:  1.069; e:  0.997
+step: 1100;  u:  2.578; x:  0.960; k:  2.270; v: -0.280; e:  4.848
+step: 1200;  u:  2.274; x:  0.424; k:  0.475; v:  0.498; e:  2.748
+step: 1300;  u:  2.568; x: -1.204; k:  2.227; v:  2.107; e:  4.795
+step: 1400;  u:  5.289; x: -2.541; k:  5.782; v:  1.936; e: 11.072
+step: 1500;  u:  3.949; x:  0.965; k:  2.195; v: -0.132; e:  6.144
+step: 1600;  u:  1.076; x:  1.434; k:  0.138; v:  0.045; e:  1.213
+step: 1700;  u:  6.707; x: -1.599; k:  3.177; v: -0.868; e:  9.884
+step: 1800;  u:  1.000; x:  1.304; k:  1.160; v:  1.416; e:  2.161
+step: 1900;  u:  4.158; x:  1.318; k:  0.737; v:  0.277; e:  4.896
+step: 2000;  u:  0.451; x: -0.717; k:  2.857; v:  1.019; e:  3.308
+step: 2100;  u:  2.052; x:  1.873; k:  5.991; v:  1.585; e:  8.043
+step: 2200;  u:  5.612; x:  2.733; k:  7.359; v:  2.541; e: 12.970
+step: 2300;  u:  3.284; x: -0.097; k:  6.797; v: -1.316; e: 10.081
+step: 2400;  u:  2.822; x: -0.512; k:  0.592; v:  0.818; e:  3.414
+step: 2500;  u:  5.065; x: -1.622; k:  1.627; v:  0.929; e:  6.692
+step: 2600;  u:  3.429; x: -1.415; k:  6.112; v: -2.231; e:  9.541
+step: 2700;  u:  2.419; x:  1.178; k:  3.780; v:  0.767; e:  6.200
+step: 2800;  u:  1.870; x: -0.554; k:  0.925; v:  1.321; e:  2.795
+step: 2900;  u:  4.809; x:  2.148; k:  3.447; v:  0.327; e:  8.256
+step: 3000;  u:  0.477; x: -0.457; k:  2.116; v: -1.446; e:  2.594
+step: 3100;  u:  4.533; x: -1.960; k:  1.521; v:  0.150; e:  6.053
+step: 3200;  u:  8.974; x: -0.817; k:  1.464; v: -1.262; e: 10.439
+step: 3300;  u: 10.648; x: -3.088; k:  2.764; v: -1.320; e: 13.411
+step: 3400;  u:  2.529; x:  0.252; k:  0.507; v:  0.605; e:  3.036
+step: 3500;  u:  3.867; x: -1.577; k:  1.174; v: -0.345; e:  5.042
+step: 3600;  u:  1.248; x: -1.250; k:  1.312; v: -1.117; e:  2.559
+step: 3700;  u:  6.244; x: -0.563; k:  6.789; v:  1.090; e: 13.034
+step: 3800;  u:  2.205; x: -1.884; k:  0.068; v:  0.128; e:  2.273
+step: 3900;  u:  3.769; x: -2.448; k:  4.692; v: -2.860; e:  8.460
+step: 4000;  u:  3.506; x:  1.418; k:  4.464; v:  2.249; e:  7.971
+step: 4100;  u:  2.697; x: -0.420; k: 12.143; v: -2.286; e: 14.841
+step: 4200;  u:  3.845; x:  0.197; k:  1.780; v: -0.224; e:  5.624
+step: 4300;  u:  1.421; x:  0.281; k:  0.093; v: -0.231; e:  1.514
+step: 4400;  u:  0.490; x:  0.029; k:  1.128; v:  0.562; e:  1.618
+step: 4500;  u:  1.987; x: -1.957; k:  1.717; v: -1.432; e:  3.705
+step: 4600;  u:  2.705; x: -0.719; k:  1.037; v: -1.074; e:  3.742
+step: 4700;  u:  2.795; x: -1.744; k:  3.767; v:  1.342; e:  6.562
+step: 4800;  u:  4.915; x: -0.700; k:  0.397; v: -0.496; e:  5.312
+step: 4900;  u:  6.074; x:  2.238; k:  1.899; v: -1.925; e:  7.973
+step: 5000;  u:  3.783; x: -2.550; k:  3.554; v: -2.391; e:  7.337
+</pre></div></div>
+</div>
+<p>Plot <span class="math notranslate nohighlight">\((x, p_x)\)</span> for the second particle. The first plot shows the numerical trajectory in the first 50 steps. Because the Langevin integrator is a stochastic integrator, the trajectory is stochastic. The second plot shows more <span class="math notranslate nohighlight">\((x, p_x)\)</span> points from the trajectory. In the second plot, a pattern emerges. Those points of <span class="math notranslate nohighlight">\((x, p_x)\)</span> are distributed according to a 2-d Gaussian distribution, which is the Boltzmann distribution at temperature T, i.e., <span class="math notranslate nohighlight">\(p(x, p_x)\)</span> is
+proportional to <span class="math notranslate nohighlight">\(\exp(-E(x, p_x)/k_BT)\)</span> where <span class="math notranslate nohighlight">\(E(x, p_x) = U(x) + K(p_x) = 1/2kx^2 + 1/2mv^2 = 1/2x^2 + 1/2p_x^2\)</span>. The Boltzmann distribution of the system is a 2-d Gaussian distribution with mean <span class="math notranslate nohighlight">\((0, 0)\)</span> and variance <span class="math notranslate nohighlight">\((k_BT, k_BT)\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">[:</span><span class="mi">50</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ps</span><span class="p">[:</span><span class="mi">50</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x position (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$p_x$ momentum (nm/ps)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Numerical trajectory&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ps</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x position (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$p_x$ momentum (nm/ps)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of sampled points&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_molecular-simulations-with-openmm_19_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_19_0.png" />
+</div>
+</div>
+<p>Let compute the mean and variance of the sampled <span class="math notranslate nohighlight">\((x, p_x)\)</span> points and see if they are close to the expected values.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">d</span><span class="p">[::</span><span class="mi">10</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (ps)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Distance (angstrom)&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean of x: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xs</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean of p_x: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ps</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;variance of x: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">xs</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;variance of p_x: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ps</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+mean of x: -0.129
+mean of p_x: 0.025
+variance of x: 2.899
+variance of p_x: 2.674
+</pre></div></div>
+</div>
+<p>In the NVT ensemble, the system is in contact with a heat bath at temperature T and therefore the system can exchange energy with the heat bath, which results in the fluctuations in the total energy of the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">))</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">,</span>
+    <span class="n">es</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;total energy&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;time (ps)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;energy (kJ/mol)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Total energy over time&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">es</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;energy (kJ/mol)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Histogram of total energy&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_molecular-simulations-with-openmm_23_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_23_0.png" />
+</div>
+</div>
+</section>
+<section id="2.-A-box-of-water">
+<h2>2. A box of water<a class="headerlink" href="#2.-A-box-of-water" title="Link to this heading">#</a></h2>
+<p>In this example, we will simulate a box of water in the NPT ensemble. Similar to the previous example, we will need to create a <code class="docutils literal notranslate"><span class="pre">System</span></code> object to represent the system. In the previous example, the system is so simple that we can create the <code class="docutils literal notranslate"><span class="pre">System</span></code> object manually. In this example, the system will involves a lot more particles and the interactions between them are more complicated. Therefore, we will use built-in functions in OpenMM to create the system. The code in the following cell will
+create a <code class="docutils literal notranslate"><span class="pre">System</span></code> object for a box of water. The box is 2nm x 2nm x 2nm. The water molecules are modelled using the TIP3P water model. The TIP3P water model is a simple rigid-body model for water that consists of three particles: two hydrogen atoms and one oxygen atom.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## OpenMM provides functions to create a system using a force field and a topology</span>
+<span class="c1">## a force field is a set of parameters that describe the interactions between different types of particles</span>
+<span class="c1">## a topology is a description of the connectivity of the particles in the system</span>
+
+<span class="c1">## the force field</span>
+<span class="n">forcefield</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">ForceField</span><span class="p">(</span><span class="s2">&quot;amber14-all.xml&quot;</span><span class="p">,</span> <span class="s2">&quot;amber14/tip3p.xml&quot;</span><span class="p">)</span>
+
+<span class="c1">## the topology</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">Topology</span><span class="p">()</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">Modeller</span><span class="p">(</span><span class="n">topology</span><span class="o">=</span><span class="n">top</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
+<span class="n">mol</span><span class="o">.</span><span class="n">addSolvent</span><span class="p">(</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;tip3p&quot;</span><span class="p">,</span> <span class="n">boxSize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+<span class="n">top</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">getTopology</span><span class="p">(),</span> <span class="n">mol</span><span class="o">.</span><span class="n">getPositions</span><span class="p">()</span>
+
+<span class="c1">## create the system</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">forcefield</span><span class="o">.</span><span class="n">createSystem</span><span class="p">(</span>
+    <span class="n">top</span><span class="p">,</span>
+    <span class="n">nonbondedMethod</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">PME</span><span class="p">,</span>
+    <span class="n">nonbondedCutoff</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">nanometers</span><span class="p">,</span>
+    <span class="n">rigidWater</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">## we can save the system to a file</span>
+<span class="c1">## you could look at the file to see what are included in the system</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;system.xml&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">XmlSerializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>To visualize the system, we will save the coordinates of the particles in the system to a PDB file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## save the pdb file</span>
+<span class="n">app</span><span class="o">.</span><span class="n">PDBFile</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;water.pdb&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
+
+<span class="c1">## visualize</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">nv</span><span class="o">.</span><span class="n">show_structure_file</span><span class="p">(</span><span class="s2">&quot;water.pdb&quot;</span><span class="p">)</span>
+<span class="n">view</span><span class="o">.</span><span class="n">add_ball_and_stick</span><span class="p">()</span>
+<span class="n">view</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+<span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dfba54181df5436da2108eca767f6bf8", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>We can query various information about the system, such as the number of particles, forces acting on the particles, and the periodic box.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_of_particles</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">getNumParticles</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of particles in the system: </span><span class="si">{</span><span class="n">num_of_particles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1">## forces in the system</span>
+<span class="n">forces</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">getForces</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of forces in the system: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">force</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="k">for</span> <span class="n">force</span> <span class="ow">in</span> <span class="n">forces</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;forces in the system: &quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of particles in the system: 1503
+Number of forces in the system: 5
+forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &#39;PeriodicTorsionForce&#39;, &#39;CMMotionRemover&#39;, &#39;HarmonicAngleForce&#39;]
+</pre></div></div>
+</div>
+<p>To simulate the system at constant pressure, we will add a <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> to the system. The <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> implements the Monte Carlo method to control the pressure of the system. It is classified as a special type of force in OpenMM and it needs to be added to the system as other forces. The <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> will periodically propose a volume change and accept or reject the volume change using the Metropolis algorithm.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">MonteCarloBarostat</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">bar</span><span class="p">,</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span> <span class="mi">25</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Forces after adding barostat:&quot;</span><span class="p">)</span>
+<span class="n">forces</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">getForces</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of forces in the system: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">force</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="k">for</span> <span class="n">force</span> <span class="ow">in</span> <span class="n">forces</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;forces in the system: &quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Forces after adding barostat:
+Number of forces in the system: 6
+forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &#39;PeriodicTorsionForce&#39;, &#39;CMMotionRemover&#39;, &#39;HarmonicAngleForce&#39;, &#39;MonteCarloBarostat&#39;]
+</pre></div></div>
+</div>
+<p>We will use the <code class="docutils literal notranslate"><span class="pre">LangevinIntegrator</span></code> to control the temperature of the system. Although we could use the <code class="docutils literal notranslate"><span class="pre">Context</span></code> class for running the simulation, we will use the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class instead. The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class is a higher-level interface for running simulations in OpenMM. It provides a convenient way to set up and run simulations, and it will automatically create a <code class="docutils literal notranslate"><span class="pre">Context</span></code> object for us.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## create a Langevin integrator at temperature T</span>
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span>
+    <span class="mf">298.15</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span>  <span class="c1"># temperature</span>
+    <span class="mi">1</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span>  <span class="c1"># friction coefficient</span>
+    <span class="mf">0.002</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">,</span>  <span class="c1"># time step</span>
+<span class="p">)</span>
+
+<span class="c1">## pick a platform</span>
+<span class="n">platform</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s2">&quot;CPU&quot;</span><span class="p">)</span>
+
+<span class="c1">## create a simulation</span>
+<span class="c1">## the simulation object will create a context and</span>
+<span class="n">simulation</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">Simulation</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="p">)</span>
+
+<span class="c1">## set the initial positions of the particles</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Minimize the system to remove any bad contacts between the water molecules. When running a simulation with a large number of particles, it is usually a good idea to minimize the system first. The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class has a built-in method for minimizing the energy of the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPotentialEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;potential energy before minimization: </span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kJ/mol&quot;</span><span class="p">)</span>
+
+<span class="n">simulation</span><span class="o">.</span><span class="n">minimizeEnergy</span><span class="p">()</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">getPotentialEnergy</span><span class="p">()</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;potential energy after minimization: </span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kJ/mol&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+potential energy before minimization: -1607.764 kJ/mol
+potential energy after minimization: -24388.499 kJ/mol
+</pre></div></div>
+</div>
+<p>Now we are ready to run the simulation. During the simulation, we will save the trajectory of the system to a DCD file. The DCD file format is a common binary format for storing molecular dynamics trajectories.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## set the initial velocities of the particles</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setVelocitiesToTemperature</span><span class="p">(</span><span class="mi">300</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span>
+
+<span class="c1">## add a reporter to the simulation</span>
+<span class="n">dcd_reporter</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">DCDReporter</span><span class="p">(</span><span class="s2">&quot;water.dcd&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">reporters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dcd_reporter</span><span class="p">)</span>
+
+<span class="c1">## add a state reporter to the simulation</span>
+<span class="n">state_reporter</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">StateDataReporter</span><span class="p">(</span>
+    <span class="s2">&quot;water.csv&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">potentialEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">reporters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_reporter</span><span class="p">)</span>
+
+<span class="c1">## run the simulation for 10 ps</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">50000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>It is important to always look at the trajectory of a simulation to rule out any apparent issues.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">traj</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">load_dcd</span><span class="p">(</span><span class="s2">&quot;water.dcd&quot;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="o">.</span><span class="n">from_openmm</span><span class="p">(</span><span class="n">top</span><span class="p">))</span>
+<span class="n">traj_view</span> <span class="o">=</span> <span class="n">nv</span><span class="o">.</span><span class="n">show_mdtraj</span><span class="p">(</span><span class="n">traj</span><span class="p">)</span>
+<span class="n">traj_view</span><span class="o">.</span><span class="n">add_ball_and_stick</span><span class="p">()</span>
+<span class="n">traj_view</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+<span class="n">traj_view</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "83e61192876648a0aa1a81b776d38bee", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>After obtaining the trajectory, we compute various properties of the system. The following properties are directly available from the state recorded during the simulation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;water.csv&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Potential Energy (kJ/mole)&quot;</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Potential Energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Potential Energy (kJ/mole)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Step&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Box Volume (nm^3)&quot;</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Box Volume&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Box Volume (nm^3)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Step&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Density (g/mL)&quot;</span><span class="p">)),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Density (g/mL)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Step&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorial_molecular-simulations-with-openmm_41_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_41_0.png" />
+</div>
+</div>
+<p>From the plot of the potential energy, we can see that the potential energy first relaxed and then fluctuated around an average value. Because we minimized the system before running the simulation, the system is not in equilibrium yet at the beginning of the simulation. It takes some time for the system to relax to equilibrium, after which the potential energy fluctuates around an average value. When computing equilibrium properties of the system, we need to exclude the part of the trajectory
+before the system reaches equilibrium. In addition, we saved the conformation for the system every 100 steps, which corresponds to 0.2 ps. Because adjacent conformations are only 0.2 ps apart, they are correlated as shown in all three plots: if the value of the property at time t is high, the value of the property at time t+1 also tends to be high. When computing the average value of the property, we want to use uncorrelated samples. To do this, we use conformations that are separated by a
+longer time interval.</p>
+<p>In the following, we exclude the first 50 snapshots and use every 5th snapshot to compute the average value of the property.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">50</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## density</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Density (g/mL)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;density from simulation: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">density</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> g/mL&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experimental value: 0.997 g/mL&quot;</span><span class="p">)</span>
+
+<span class="c1">## average potential energy</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Potential Energy (kJ/mole)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">num_water</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">getNumParticles</span><span class="p">()</span> <span class="o">//</span> <span class="mi">3</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">u</span> <span class="o">/</span> <span class="n">num_water</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;potential energy per water from simulation: </span><span class="si">{</span><span class="n">u</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kJ/mol&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experimental value: - 41.505 kJ/mol&quot;</span><span class="p">)</span>
+
+<span class="c1">## enthalpy of vaporization</span>
+<span class="n">DeltaU</span> <span class="o">=</span> <span class="o">-</span><span class="n">u</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;Box Volume (nm^3)&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">V_liquid</span> <span class="o">=</span> <span class="n">V</span> <span class="o">/</span> <span class="n">num_water</span>
+
+<span class="n">V_gas</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="n">MOLAR_GAS_CONSTANT_R</span> <span class="o">*</span> <span class="mf">298.15</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">bar</span><span class="p">)</span>
+<span class="n">V_gas</span> <span class="o">=</span> <span class="p">(</span><span class="n">V_gas</span> <span class="o">/</span> <span class="n">unit</span><span class="o">.</span><span class="n">AVOGADRO_CONSTANT_NA</span><span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">DeltaV</span> <span class="o">=</span> <span class="n">V_gas</span> <span class="o">-</span> <span class="n">V_liquid</span>
+<span class="n">DeltaH</span> <span class="o">=</span> <span class="n">DeltaU</span> <span class="o">+</span> <span class="p">(</span>
+    <span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">bar</span> <span class="o">*</span> <span class="n">DeltaV</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">nanometer</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">AVOGADRO_CONSTANT_NA</span>
+<span class="p">)</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">kilojoule_per_mole</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;enthalpy of vaporization from simulation: </span><span class="si">{</span><span class="n">DeltaH</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kJ/mol&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experimental value: 44.016 kJ/mol&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -575,10 +1146,19 @@ production simulations on a GPU. Here our system is too small to benefit from GP
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorial_molecular-simulations-with-openmm_14_0.png" src="../_images/tutorial_molecular-simulations-with-openmm_14_0.png" />
+<div class="highlight"><pre>
+==================================================
+density from simulation: 0.986 g/mL
+experimental value: 0.997 g/mL
+==================================================
+potential energy per water from simulation: -40.105 kJ/mol
+experimental value: - 41.505 kJ/mol
+==================================================
+enthalpy of vaporization from simulation: 42.582 kJ/mol
+experimental value: 44.016 kJ/mol
+</pre></div></div>
 </div>
-</div>
-<p>We see that the distance between the two particles fluctuates randomly during the simulation. However, the distribution of distances converges to the equilibrium distribution predicted by the Boltzmann distribution. You could notice that the mean of the distance is not 1 angstrom, which is the equilibrium distance of the harmonic bond. You should think about why this is the case.</p>
+<p>The simulated results agree with experimental values quite well. This is surprising because the water model used here is a simple rigid-body model. It is not surprising because the parameters of the water model were fitted to reproduce experimental values. There are many other water models available that can reproduce experimental values better than the TIP3P water model.</p>
 </section>
 </section>
 
@@ -593,6 +1173,24 @@ production simulations on a GPU. Here our system is too small to benefit from GP
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="metropolis-hastings-algorithm.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Metropolis-Hastings Algorithm</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../homework/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Homeworks</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -611,6 +1209,7 @@ production simulations on a GPU. Here our system is too small to benefit from GP
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-A-1-D-harmonic-oscillator">1. A 1-D harmonic oscillator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-A-box-of-water">2. A box of water</a></li>
 </ul>
   </nav></div>
 

@@ -13,4 +13,5 @@ Lecture Slides
 - `Monte Carlo simulations <_static/lecture_slides/8-monte-carlo-simulations.pdf>`_
 - `Monte Carlo simulations of molecular systems <_static/lecture_slides/9-monte-carlo-simulations-of-molecular-systems.pdf>`_  
 - `moecular dynamics simulations <_static/lecture_slides/10-molecular-dynamics-simulations.pdf>`_ 
+- `multiple sequence alignment <_static/lecture_slides/11-multiple-sequence-alignment.pdf>`_
 

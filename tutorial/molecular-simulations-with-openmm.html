@@ -363,7 +363,7 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "457e07cff00741a789699b87fc56ee2d", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5908541348df4fe59b8eb445d87f7922", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <section id="1.-A-1-D-harmonic-oscillator">
 <h2>1. A 1-D harmonic oscillator<a class="headerlink" href="#1.-A-1-D-harmonic-oscillator" title="Link to this heading">#</a></h2>
@@ -458,7 +458,7 @@ Number of particles in the system:  2
 <p>There is one more thing we need to do before we can run the simulation in OpenMM. OpenMM uses a class called <a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.Context.html#openmm.openmm.Context">Context</a> to represent the complete state of a simulation and a <code class="docutils literal notranslate"><span class="pre">Context</span></code> object is created from a <code class="docutils literal notranslate"><span class="pre">System</span></code> object, an <code class="docutils literal notranslate"><span class="pre">Integrator</span></code> object, and a <code class="docutils literal notranslate"><span class="pre">Platform</span></code> object. The <code class="docutils literal notranslate"><span class="pre">Context</span></code> object contains among other things the positions and velocities of all the particles in the
 system. Before running the simulation, we also need to set the initial positions and velocities of the particles in the context.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## create an integrator with a time step of 0.1 ps</span>
@@ -503,7 +503,7 @@ system. Before running the simulation, we also need to set the initial positions
 </div>
 <p>Now we are ready to run the simulation. To take a time step in the simulation, we call the <code class="docutils literal notranslate"><span class="pre">step</span></code> method of the integrator. After taking a time step, we record the new positions and velocities of the particles from the context.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positions</span>
@@ -599,7 +599,7 @@ step:  50;  u:  0.460; x: -0.960; k:  0.041; v:  0.238; e:  0.501
 </div>
 <p>Plot the numerical trajectory in the phase space of <span class="math notranslate nohighlight">\((x, p_x)\)</span> where x is the x-coordinate of the particle and p_x is the x-component of the momentum of the particle. The numerical trajectory is compared to the analytical trajectory. You could change the step size used in the integrator to see how it affects the accuracy of the numerical trajectory.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span> <span class="o">=</span> <span class="n">vs</span>  <span class="c1">## momentum</span>
@@ -629,7 +629,7 @@ step:  50;  u:  0.460; x: -0.960; k:  0.041; v:  0.238; e:  0.501
 <p>Plot the potential energy and kinetic energy of the particle as a function of time. The Hamiltonian equation of motion is energy conserving, so the total energy of the system is close to a constant. The small oscillations in the total energy are due to numerical errors in the integration. The kinetic energy and potential energy oscillate in time. Because the Hamiltonian equations is energy conserving, conformations sampled by integrating the Hamiltonian equations are the ones from the system’s
 NVE ensemble.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">us</span><span class="p">))</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;potential energy&quot;</span><span class="p">)</span>
@@ -651,7 +651,7 @@ NVE ensemble.</p>
 </div>
 <p>To sample from the NVT ensemble, we can use the <code class="docutils literal notranslate"><span class="pre">LangevinIntegrator</span></code> instead of the <code class="docutils literal notranslate"><span class="pre">VerletIntegrator</span></code>. The Langevin integrator integrates the Langevin equations of motion, which mathematically models the effect of a heat bath on the system.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## construct a Langevin integrator at temperature T</span>
@@ -709,66 +709,66 @@ NVE ensemble.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-step: 100;  u:  1.815; x: -0.516; k:  7.429; v: -2.982; e:  9.243
-step: 200;  u:  1.539; x:  0.770; k:  2.317; v:  2.113; e:  3.856
-step: 300;  u:  0.599; x: -0.840; k:  8.698; v: -0.595; e:  9.297
-step: 400;  u:  3.638; x: -1.226; k:  1.864; v:  0.881; e:  5.502
-step: 500;  u:  9.677; x: -2.026; k:  1.591; v:  1.617; e: 11.268
-step: 600;  u:  0.333; x:  0.128; k:  5.552; v: -3.181; e:  5.884
-step: 700;  u:  3.577; x: -0.944; k:  0.823; v:  0.759; e:  4.399
-step: 800;  u:  6.732; x:  3.057; k:  3.320; v:  2.312; e: 10.053
-step: 900;  u:  0.782; x:  1.121; k:  2.650; v: -1.610; e:  3.432
-step: 1000;  u:  0.274; x: -0.190; k:  0.723; v:  1.069; e:  0.997
-step: 1100;  u:  2.578; x:  0.960; k:  2.270; v: -0.280; e:  4.848
-step: 1200;  u:  2.274; x:  0.424; k:  0.475; v:  0.498; e:  2.748
-step: 1300;  u:  2.568; x: -1.204; k:  2.227; v:  2.107; e:  4.795
-step: 1400;  u:  5.289; x: -2.541; k:  5.782; v:  1.936; e: 11.072
-step: 1500;  u:  3.949; x:  0.965; k:  2.195; v: -0.132; e:  6.144
-step: 1600;  u:  1.076; x:  1.434; k:  0.138; v:  0.045; e:  1.213
-step: 1700;  u:  6.707; x: -1.599; k:  3.177; v: -0.868; e:  9.884
-step: 1800;  u:  1.000; x:  1.304; k:  1.160; v:  1.416; e:  2.161
-step: 1900;  u:  4.158; x:  1.318; k:  0.737; v:  0.277; e:  4.896
-step: 2000;  u:  0.451; x: -0.717; k:  2.857; v:  1.019; e:  3.308
-step: 2100;  u:  2.052; x:  1.873; k:  5.991; v:  1.585; e:  8.043
-step: 2200;  u:  5.612; x:  2.733; k:  7.359; v:  2.541; e: 12.970
-step: 2300;  u:  3.284; x: -0.097; k:  6.797; v: -1.316; e: 10.081
-step: 2400;  u:  2.822; x: -0.512; k:  0.592; v:  0.818; e:  3.414
-step: 2500;  u:  5.065; x: -1.622; k:  1.627; v:  0.929; e:  6.692
-step: 2600;  u:  3.429; x: -1.415; k:  6.112; v: -2.231; e:  9.541
-step: 2700;  u:  2.419; x:  1.178; k:  3.780; v:  0.767; e:  6.200
-step: 2800;  u:  1.870; x: -0.554; k:  0.925; v:  1.321; e:  2.795
-step: 2900;  u:  4.809; x:  2.148; k:  3.447; v:  0.327; e:  8.256
-step: 3000;  u:  0.477; x: -0.457; k:  2.116; v: -1.446; e:  2.594
-step: 3100;  u:  4.533; x: -1.960; k:  1.521; v:  0.150; e:  6.053
-step: 3200;  u:  8.974; x: -0.817; k:  1.464; v: -1.262; e: 10.439
-step: 3300;  u: 10.648; x: -3.088; k:  2.764; v: -1.320; e: 13.411
-step: 3400;  u:  2.529; x:  0.252; k:  0.507; v:  0.605; e:  3.036
-step: 3500;  u:  3.867; x: -1.577; k:  1.174; v: -0.345; e:  5.042
-step: 3600;  u:  1.248; x: -1.250; k:  1.312; v: -1.117; e:  2.559
-step: 3700;  u:  6.244; x: -0.563; k:  6.789; v:  1.090; e: 13.034
-step: 3800;  u:  2.205; x: -1.884; k:  0.068; v:  0.128; e:  2.273
-step: 3900;  u:  3.769; x: -2.448; k:  4.692; v: -2.860; e:  8.460
-step: 4000;  u:  3.506; x:  1.418; k:  4.464; v:  2.249; e:  7.971
-step: 4100;  u:  2.697; x: -0.420; k: 12.143; v: -2.286; e: 14.841
-step: 4200;  u:  3.845; x:  0.197; k:  1.780; v: -0.224; e:  5.624
-step: 4300;  u:  1.421; x:  0.281; k:  0.093; v: -0.231; e:  1.514
-step: 4400;  u:  0.490; x:  0.029; k:  1.128; v:  0.562; e:  1.618
-step: 4500;  u:  1.987; x: -1.957; k:  1.717; v: -1.432; e:  3.705
-step: 4600;  u:  2.705; x: -0.719; k:  1.037; v: -1.074; e:  3.742
-step: 4700;  u:  2.795; x: -1.744; k:  3.767; v:  1.342; e:  6.562
-step: 4800;  u:  4.915; x: -0.700; k:  0.397; v: -0.496; e:  5.312
-step: 4900;  u:  6.074; x:  2.238; k:  1.899; v: -1.925; e:  7.973
-step: 5000;  u:  3.783; x: -2.550; k:  3.554; v: -2.391; e:  7.337
+step: 100;  u:  3.136; x:  1.143; k:  4.316; v: -1.446; e:  7.452
+step: 200;  u:  5.647; x: -0.147; k:  2.820; v:  1.977; e:  8.467
+step: 300;  u:  0.340; x:  0.822; k:  2.614; v: -1.473; e:  2.954
+step: 400;  u:  4.014; x:  2.009; k:  2.485; v: -1.167; e:  6.499
+step: 500;  u:  5.025; x:  1.706; k:  2.618; v: -1.262; e:  7.644
+step: 600;  u:  6.007; x: -2.908; k: 10.900; v: -0.102; e: 16.907
+step: 700;  u:  6.871; x: -2.736; k:  1.911; v: -1.451; e:  8.782
+step: 800;  u:  5.153; x: -0.937; k:  0.569; v: -1.015; e:  5.722
+step: 900;  u: 11.561; x: -3.538; k:  2.376; v:  0.843; e: 13.937
+step: 1000;  u:  3.798; x:  0.118; k:  0.044; v: -0.211; e:  3.842
+step: 1100;  u:  1.162; x: -0.731; k:  1.781; v: -1.721; e:  2.943
+step: 1200;  u:  3.194; x: -0.520; k:  2.819; v: -0.149; e:  6.013
+step: 1300;  u:  2.521; x:  0.717; k:  0.610; v: -0.550; e:  3.130
+step: 1400;  u:  0.744; x:  1.014; k:  9.965; v:  2.138; e: 10.709
+step: 1500;  u:  5.642; x:  0.674; k:  6.134; v:  2.863; e: 11.776
+step: 1600;  u:  6.841; x: -3.614; k:  2.219; v: -0.808; e:  9.060
+step: 1700;  u:  3.040; x:  1.344; k:  3.664; v:  0.673; e:  6.704
+step: 1800;  u:  2.067; x: -1.697; k:  0.803; v:  1.038; e:  2.870
+step: 1900;  u:  2.889; x:  0.635; k: 12.177; v: -0.983; e: 15.066
+step: 2000;  u:  8.295; x: -2.194; k:  1.198; v: -1.219; e:  9.494
+step: 2100;  u:  8.324; x: -3.638; k: 10.878; v: -3.511; e: 19.201
+step: 2200;  u:  3.865; x:  1.409; k:  5.397; v:  1.929; e:  9.262
+step: 2300;  u:  1.330; x:  0.760; k:  4.454; v: -1.262; e:  5.784
+step: 2400;  u:  2.513; x:  0.182; k:  1.250; v: -0.228; e:  3.763
+step: 2500;  u:  2.130; x:  1.796; k:  1.418; v:  0.883; e:  3.548
+step: 2600;  u:  1.078; x: -1.465; k:  5.116; v:  1.153; e:  6.193
+step: 2700;  u:  2.889; x: -1.306; k:  2.660; v: -1.008; e:  5.549
+step: 2800;  u:  0.061; x: -0.169; k:  0.144; v: -0.273; e:  0.205
+step: 2900;  u:  4.533; x:  0.894; k:  7.148; v: -2.709; e: 11.681
+step: 3000;  u:  3.791; x: -2.451; k:  1.228; v:  1.200; e:  5.019
+step: 3100;  u:  4.831; x: -2.756; k:  0.890; v:  1.092; e:  5.720
+step: 3200;  u:  5.473; x: -1.959; k:  9.813; v:  2.866; e: 15.286
+step: 3300;  u:  7.220; x: -2.735; k:  1.556; v:  0.022; e:  8.776
+step: 3400;  u:  6.623; x: -0.561; k:  5.976; v:  2.070; e: 12.598
+step: 3500;  u:  6.757; x: -0.610; k:  1.035; v:  0.264; e:  7.792
+step: 3600;  u:  0.550; x: -0.413; k:  5.680; v: -2.720; e:  6.231
+step: 3700;  u:  1.692; x:  0.489; k:  0.447; v:  0.653; e:  2.139
+step: 3800;  u:  6.270; x: -1.250; k:  2.067; v:  0.655; e:  8.337
+step: 3900;  u:  6.321; x: -2.097; k:  9.159; v:  0.808; e: 15.480
+step: 4000;  u:  3.072; x:  1.123; k:  0.240; v:  0.064; e:  3.313
+step: 4100;  u:  3.369; x:  0.462; k:  3.320; v:  0.115; e:  6.689
+step: 4200;  u: 14.947; x:  0.464; k:  0.889; v:  0.119; e: 15.836
+step: 4300;  u:  3.243; x: -0.420; k:  0.818; v: -0.501; e:  4.061
+step: 4400;  u:  5.749; x:  2.815; k:  3.271; v: -0.253; e:  9.021
+step: 4500;  u:  0.198; x: -0.614; k:  1.135; v: -0.438; e:  1.333
+step: 4600;  u:  3.195; x: -1.967; k:  2.052; v: -1.900; e:  5.247
+step: 4700;  u:  4.118; x: -1.258; k:  9.072; v:  1.114; e: 13.190
+step: 4800;  u:  0.918; x:  0.572; k:  1.342; v: -0.551; e:  2.260
+step: 4900;  u:  9.108; x:  3.819; k:  0.248; v:  0.598; e:  9.356
+step: 5000;  u:  2.552; x:  0.068; k:  4.860; v: -0.651; e:  7.412
 </pre></div></div>
 </div>
 <p>Plot <span class="math notranslate nohighlight">\((x, p_x)\)</span> for the second particle. The first plot shows the numerical trajectory in the first 50 steps. Because the Langevin integrator is a stochastic integrator, the trajectory is stochastic. The second plot shows more <span class="math notranslate nohighlight">\((x, p_x)\)</span> points from the trajectory. In the second plot, a pattern emerges. Those points of <span class="math notranslate nohighlight">\((x, p_x)\)</span> are distributed according to a 2-d Gaussian distribution, which is the Boltzmann distribution at temperature T, i.e., <span class="math notranslate nohighlight">\(p(x, p_x)\)</span> is
 proportional to <span class="math notranslate nohighlight">\(\exp(-E(x, p_x)/k_BT)\)</span> where <span class="math notranslate nohighlight">\(E(x, p_x) = U(x) + K(p_x) = 1/2kx^2 + 1/2mv^2 = 1/2x^2 + 1/2p_x^2\)</span>. The Boltzmann distribution of the system is a 2-d Gaussian distribution with mean <span class="math notranslate nohighlight">\((0, 0)\)</span> and variance <span class="math notranslate nohighlight">\((k_BT, k_BT)\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">[:</span><span class="mi">50</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ps</span><span class="p">[:</span><span class="mi">50</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">[:</span><span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ps</span><span class="p">[:</span><span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
@@ -798,7 +798,7 @@ proportional to <span class="math notranslate nohighlight">\(\exp(-E(x, p_x)/k_B
 </div>
 <p>Let compute the mean and variance of the sampled <span class="math notranslate nohighlight">\((x, p_x)\)</span> points and see if they are close to the expected values.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean of x: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xs</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -814,15 +814,15 @@ proportional to <span class="math notranslate nohighlight">\(\exp(-E(x, p_x)/k_B
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-mean of x: -0.129
-mean of p_x: 0.025
-variance of x: 2.899
-variance of p_x: 2.674
+mean of x: -0.134
+mean of p_x: -0.042
+variance of x: 2.616
+variance of p_x: 2.695
 </pre></div></div>
 </div>
 <p>In the NVT ensemble, the system is in contact with a heat bath at temperature T and therefore the system can exchange energy with the heat bath, which results in the fluctuations in the total energy of the system.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
@@ -859,7 +859,7 @@ variance of p_x: 2.674
 <p>In this example, we will simulate a box of water in the NPT ensemble. Similar to the previous example, we will need to create a <code class="docutils literal notranslate"><span class="pre">System</span></code> object to represent the system. In the previous example, the system is so simple that we can create the <code class="docutils literal notranslate"><span class="pre">System</span></code> object manually. In this example, the system will involves a lot more particles and the interactions between them are more complicated. Therefore, we will use built-in functions in OpenMM to create the system. The code in the following cell will
 create a <code class="docutils literal notranslate"><span class="pre">System</span></code> object for a box of water. The box is 2nm x 2nm x 2nm. The water molecules are modelled using the TIP3P water model. The TIP3P water model is a simple rigid-body model for water that consists of three particles: two hydrogen atoms and one oxygen atom.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## OpenMM provides functions to create a system using a force field and a topology</span>
@@ -893,7 +893,7 @@ create a <code class="docutils literal notranslate"><span class="pre">System</sp
 </div>
 <p>To visualize the system, we will save the coordinates of the particles in the system to a PDB file.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## save the pdb file</span>
@@ -911,11 +911,11 @@ create a <code class="docutils literal notranslate"><span class="pre">System</sp
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dfba54181df5436da2108eca767f6bf8", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ac05075023e248fcb23d737cc7c7bf1e", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <p>We can query various information about the system, such as the number of particles, forces acting on the particles, and the periodic box.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_of_particles</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">getNumParticles</span><span class="p">()</span>
@@ -941,7 +941,7 @@ forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &
 </div>
 <p>To simulate the system at constant pressure, we will add a <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> to the system. The <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> implements the Monte Carlo method to control the pressure of the system. It is classified as a special type of force in OpenMM and it needs to be added to the system as other forces. The <code class="docutils literal notranslate"><span class="pre">MonteCarloBarostat</span></code> will periodically propose a volume change and accept or reject the volume change using the Metropolis algorithm.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">addForce</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">MonteCarloBarostat</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">bar</span><span class="p">,</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span> <span class="mi">25</span><span class="p">))</span>
@@ -965,7 +965,7 @@ forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &
 </div>
 <p>We will use the <code class="docutils literal notranslate"><span class="pre">LangevinIntegrator</span></code> to control the temperature of the system. Although we could use the <code class="docutils literal notranslate"><span class="pre">Context</span></code> class for running the simulation, we will use the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class instead. The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class is a higher-level interface for running simulations in OpenMM. It provides a convenient way to set up and run simulations, and it will automatically create a <code class="docutils literal notranslate"><span class="pre">Context</span></code> object for us.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## create a Langevin integrator at temperature T</span>
@@ -989,7 +989,7 @@ forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &
 </div>
 <p>Minimize the system to remove any bad contacts between the water molecules. When running a simulation with a large number of particles, it is usually a good idea to minimize the system first. The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class has a built-in method for minimizing the energy of the system.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="n">getEnergy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1010,12 +1010,12 @@ forces in the system:  [&#39;HarmonicBondForce&#39;, &#39;NonbondedForce&#39;, &
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 potential energy before minimization: -1607.764 kJ/mol
-potential energy after minimization: -24388.499 kJ/mol
+potential energy after minimization: -24029.260 kJ/mol
 </pre></div></div>
 </div>
 <p>Now we are ready to run the simulation. During the simulation, we will save the trajectory of the system to a DCD file. The DCD file format is a common binary format for storing molecular dynamics trajectories.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## set the initial velocities of the particles</span>
@@ -1032,13 +1032,13 @@ potential energy after minimization: -24388.499 kJ/mol
 <span class="n">simulation</span><span class="o">.</span><span class="n">reporters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_reporter</span><span class="p">)</span>
 
 <span class="c1">## run the simulation for 10 ps</span>
-<span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">50000</span><span class="p">)</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="mi">50_000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>It is important to always look at the trajectory of a simulation to rule out any apparent issues.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">traj</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">load_dcd</span><span class="p">(</span><span class="s2">&quot;water.dcd&quot;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="o">.</span><span class="n">from_openmm</span><span class="p">(</span><span class="n">top</span><span class="p">))</span>
@@ -1053,11 +1053,11 @@ potential energy after minimization: -24388.499 kJ/mol
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "83e61192876648a0aa1a81b776d38bee", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7315e0a4c4f84f0097d794d6175249a4", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <p>After obtaining the trajectory, we compute various properties of the system. The following properties are directly available from the state recorded during the simulation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;water.csv&quot;</span><span class="p">)</span>
@@ -1097,7 +1097,7 @@ before the system reaches equilibrium. In addition, we saved the conformation fo
 longer time interval.</p>
 <p>In the following, we exclude the first 50 snapshots and use every 5th snapshot to compute the average value of the property.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">50</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
@@ -1105,7 +1105,7 @@ longer time interval.</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## density</span>
@@ -1148,13 +1148,13 @@ longer time interval.</p>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ==================================================
-density from simulation: 0.986 g/mL
+density from simulation: 0.983 g/mL
 experimental value: 0.997 g/mL
 ==================================================
-potential energy per water from simulation: -40.105 kJ/mol
+potential energy per water from simulation: -40.052 kJ/mol
 experimental value: - 41.505 kJ/mol
 ==================================================
-enthalpy of vaporization from simulation: 42.582 kJ/mol
+enthalpy of vaporization from simulation: 42.529 kJ/mol
 experimental value: 44.016 kJ/mol
 </pre></div></div>
 </div>

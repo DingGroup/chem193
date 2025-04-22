@@ -12,4 +12,5 @@ Tutorials
    sample-from-probability-distributions.ipynb
    metropolis-hastings-algorithm.ipynb
    molecular-simulations-with-openmm.ipynb
+   potts-model/main.ipynb
 

@@ -105,6 +105,14 @@ Lecture schedule
      - `multiple sequence alignment <_static/lecture_slides/11-multiple-sequence-alignment.pdf>`_
      - 
      -
+   * - 04/13
+     - A bag of computing and programming tricks
+     - 
+     -
+   * - 04/20
+     - `multiple sequence alignment <_static/lecture_slides/11-multiple-sequence-alignment.pdf>`_
+     - `Potts model <./tutorial/potts-model/main.ipynb>`_
+     -
      
 
 
